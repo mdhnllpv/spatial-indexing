@@ -130,6 +130,7 @@ public class Node {
 	 * @return - the splited node
 	 */
 	public List<Set<Node>> SplitNode() {
+		
 		Node[] startGroups = PickSeeds();
 		
 		Set<Node> set0 = new HashSet<Node>();
@@ -142,6 +143,14 @@ public class Node {
 		this.getChildNodes().remove(startGroups[1]);
 
 		while (!this.getChildNodes().isEmpty()) {
+			if ( set0.size() + this.getChildNodes().size() < m){
+				set0.addAll(this.getChildNodes());
+				break;
+			}
+			if ( set1.size() + this.getChildNodes().size() < m){
+				set1.addAll(this.getChildNodes());
+				break;
+			}
 			Node next = pickNext(startGroups[0], startGroups[1]);
 
 			if (startGroups[0].enlargment(next) < startGroups[1]
