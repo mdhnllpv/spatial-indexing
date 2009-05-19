@@ -3,21 +3,8 @@ package components;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.List;
 
 public interface IComponent {
-	/**
-	 * 
-	 * @return object bound
-	 */
-	public Rectangle getBound();
-	
-	/**
-	 * 
-	 * @return Return list with point of the object
-	 */
-	public List<Point> getPoints();
-	
 	/**
 	 * Add a point to the component
 	 * @param point
@@ -29,4 +16,28 @@ public interface IComponent {
 	 * @param g - Graphics
 	 */
 	public void paintComponent(Graphics g);
+		
+	/**
+	 * 
+	 * @return - True if component is complete
+	 */
+	public boolean isComplete();
+	
+	/**
+	 * 
+	 * @param isComplete - true if component is complete
+	 */
+	public void setComplete(boolean isComplete);
+	
+	/**
+	 * Set component caption
+	 * @param caption - caption
+	 */
+	public void setCaption(String caption);
+	
+	/**
+	 * 
+	 * @return component bound
+	 */
+	public Rectangle getBound();
 }
