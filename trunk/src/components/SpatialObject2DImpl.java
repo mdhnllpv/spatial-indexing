@@ -96,4 +96,10 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 		return this.rectangleBound;
 	}
 
+	@Override
+	public void setBound(Rectangle bound) {
+		this.rectangleBound = bound;
+		
+	}
+	
 }

@@ -72,7 +72,7 @@ public class RTree {
 		}
 		Node parent = node.getParent();
 
-		parent.Enclose();
+		parent.enclose();
 
 		if (parent.getChildNodes().size() > M) {
 			//parent.SplitNode(splited);
