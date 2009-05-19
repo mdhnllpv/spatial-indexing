@@ -9,20 +9,20 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import components.Component2D;
-import components.IComponent;
+import components.SpatialObject2DImpl;
+import components.ISpatialObject2D;
 
 public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	private static final long serialVersionUID = -8669154925460990333L;
 
-	private Set<IComponent> components;
+	private Set<ISpatialObject2D> components;
 	
-	private IComponent currunt = null;
+	private ISpatialObject2D currunt = null;
 
 	public DrawingPanel() {
 		
-		components = new HashSet<IComponent>();
+		components = new HashSet<ISpatialObject2D>();
 		
 		addMouseListener(new MouseAdapterWrapper());
 		addMouseMotionListener(this);
@@ -35,7 +35,7 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	}
 
 	public void paint(Graphics g) {
-		for (IComponent component : components){
+		for (ISpatialObject2D component : components){
 			component.paintComponent(g);
 		}
 	}
@@ -49,7 +49,7 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		
 		@Override
 		public void mousePressed(MouseEvent evt) {
-			currunt = new Component2D();
+			currunt = new SpatialObject2DImpl();
 			components.add(currunt);
 		}
 
