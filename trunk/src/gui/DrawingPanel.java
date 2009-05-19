@@ -1,39 +1,50 @@
 package gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JPanel;
+
+import components.Component2D;
+import components.IComponent;
 
 public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	private static final long serialVersionUID = -8669154925460990333L;
 
-	private int mX, mY;
+	private Set<IComponent> components;
+	
+	private IComponent currunt = null;
 
 	public DrawingPanel() {
+		
+		components = new HashSet<IComponent>();
+		
+		// Add mouse listener
 		addMouseListener(new MouseAdapterWrapper());
+		// Add mouse motion listener
 		addMouseMotionListener(this);
 		setVisible(true);
 	}
 
 	public void mouseDragged(MouseEvent me) {
-		mX = (int) me.getPoint().getX();
-		mY = (int) me.getPoint().getY();
+		System.out.println("dragged");
+		currunt.addPoint(me.getPoint());
 		repaint();
 	}
 
 	public void paint(Graphics g) {
-		g.setColor(Color.blue);
-		g.fillRect(mX, mY, 5, 5);
+		for (IComponent component : components){
+			component.paintComponent(g);
+		}
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 
 	}
 	
@@ -41,7 +52,8 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		
 		@Override
 		public void mousePressed(MouseEvent evt) {
-			System.out.println("Mouse pressed");
+			currunt = new Component2D();
+			components.add(currunt);
 		}
 
 		@Override
