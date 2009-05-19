@@ -7,7 +7,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Component2D implements IComponent {
+public class SpatialObject2DImpl implements ISpatialObject2D {
 
 	private List<Point> points;
 
@@ -17,7 +17,7 @@ public class Component2D implements IComponent {
 	
 	private String caption = null;
 
-	public Component2D() {
+	public SpatialObject2DImpl() {
 		this.points = new ArrayList<Point>();
 		this.rectangleBound = new Rectangle();
 		this.isComplete = false;
