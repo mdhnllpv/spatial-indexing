@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public interface IComponent {
+public interface ISpatialObject2D {
 	/**
 	 * Add a point to the component
 	 * @param point
