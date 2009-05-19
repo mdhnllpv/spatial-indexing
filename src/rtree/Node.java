@@ -2,15 +2,15 @@ package rtree;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import components.ISpatialObject2D;
-import components.SpatialObject2DImpl;
 
 public class Node {
 
-	private Rectangle bound = new Rectangle();
+	private Rectangle bound = null;
 
 	private List<Node> childNodes = new ArrayList<Node>();
 
@@ -53,18 +53,18 @@ public class Node {
 
 		return enlargment(component.getBound());
 	}
-	
+
 	/**
 	 * 
 	 * @param node
 	 * @return the enlargement needed to bound the node
 	 */
-	public double enlargment(Node node){
-		
+	public double enlargment(Node node) {
+
 		return enlargment(node.getBound());
 	}
-	
-	private double enlargment(Rectangle rectangle){
+
+	private double enlargment(Rectangle rectangle) {
 		Rectangle newRectangle = (Rectangle) bound.createUnion(rectangle);
 		return newRectangle.getHeight() * newRectangle.getWidth()
 				- bound.getHeight() * bound.getWidth();
@@ -83,11 +83,22 @@ public class Node {
 
 	public void addChild(Node child) {
 		childNodes.add(child);
+		this.enclose();
 	}
 
-	public void addSpatialObject(ISpatialObject2D component) {
-		bound.add(component.getBound());
-		this.spatialObjects.add(component);
+	/**
+	 * Add new spatial object to the node structure
+	 * 
+	 * @param obj
+	 *            Object
+	 */
+	public void addSpatialObject(ISpatialObject2D obj) {
+		if (this.spatialObjects.isEmpty()) {
+			bound = (Rectangle) obj.getBound().clone();
+		} else {
+			bound.add(obj.getBound());
+		}
+		this.spatialObjects.add(obj);
 	}
 
 	public List<ISpatialObject2D> getSpatialObjects() {
@@ -118,13 +129,35 @@ public class Node {
 	 *            - The spatial object to add
 	 * @return - the splited node
 	 */
-	public Node SplitNode() {
+	public List<Set<Node>> SplitNode() {
 		Node[] startGroups = PickSeeds();
-		while (!this.getChildNodes().isEmpty()){
-			
-		}
 		
-		return null;
+		Set<Node> set0 = new HashSet<Node>();
+		Set<Node> set1 = new HashSet<Node>();
+		
+		set0.add(startGroups[0]);
+		set1.add(startGroups[1]);
+
+		this.getChildNodes().remove(startGroups[0]);
+		this.getChildNodes().remove(startGroups[1]);
+
+		while (!this.getChildNodes().isEmpty()) {
+			Node next = pickNext(startGroups[0], startGroups[1]);
+
+			if (startGroups[0].enlargment(next) < startGroups[1]
+					.enlargment(next)) {
+				set0.add(next);
+			} else {
+				set1.add(next);
+			}
+			this.getChildNodes().remove(next);
+		}
+
+		List<Set<Node>> res = new ArrayList<Set<Node>>();
+		res.add(set0);
+		res.add(set1);
+		
+		return  res;
 	}
 
 	/**
@@ -171,8 +204,10 @@ public class Node {
 		double max = 0;
 		Node result = null;
 		for (Node node : this.getChildNodes()) {
-			if ( max < Math.abs(node.enlargment(group1) - node.enlargment(group2))){
-				max = Math.abs(node.enlargment(group1) - node.enlargment(group2));
+			if (max < Math.abs(node.enlargment(group1)
+					- node.enlargment(group2))) {
+				max = Math.abs(node.enlargment(group1)
+						- node.enlargment(group2));
 				result = node;
 			}
 		}
@@ -182,13 +217,17 @@ public class Node {
 	/**
 	 * Adjust the node bound so it enclosed all children bounds
 	 */
-	public void Enclose() {
-		Rectangle rect = new Rectangle();
-		for (Node child : childNodes) {
-			rect.add(child.bound);
+	public void enclose() {
+		if (childNodes.isEmpty()) {
+			return;
+		} else if (childNodes.size() == 1) {
+			this.bound = childNodes.get(0).getBound();
+		} else {
+			Rectangle rect = (Rectangle) childNodes.get(0).getBound().clone();
+			for (Node child : childNodes) {
+				rect.add(child.getBound());
+			}
+			this.bound = rect;
 		}
-		bound = rect;
 	}
-	
-
 }

@@ -40,4 +40,6 @@ public interface ISpatialObject2D {
 	 * @return component bound
 	 */
 	public Rectangle getBound();
+	
+	public void setBound(Rectangle bound);
 }
