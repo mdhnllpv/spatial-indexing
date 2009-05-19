@@ -24,15 +24,12 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		
 		components = new HashSet<IComponent>();
 		
-		// Add mouse listener
 		addMouseListener(new MouseAdapterWrapper());
-		// Add mouse motion listener
 		addMouseMotionListener(this);
 		setVisible(true);
 	}
 
 	public void mouseDragged(MouseEvent me) {
-		System.out.println("dragged");
 		currunt.addPoint(me.getPoint());
 		repaint();
 	}
@@ -57,8 +54,10 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent evt) {
-			System.out.println("Mouse clicked");
+		public void mouseReleased(MouseEvent evt) {
+			currunt.setComplete(true);
+			currunt.setCaption("R" + components.size());
+			repaint();
 		}
 	}
 }
