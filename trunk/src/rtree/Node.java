@@ -88,6 +88,7 @@ public class Node {
 	 */
 	public void addChild(Node node) {
 		this.childs.add(node);
+		node.setParent(this);
 		this.bound = Node.encloseNode(getChilds());
 	}
 

@@ -179,7 +179,7 @@ public class RTree {
 	
 	private void draw(Node node,Graphics g){
 		g.setColor(Color.BLUE);
-		g.drawString(node.getCaption(), node.getBound().x, node.getBound().y);
+		//g.drawString(node.getCaption(), node.getBound().x, node.getBound().y);
 		g.drawRect(node.getBound().x, node.getBound().y, node.getBound().width, node.getBound().height);
 		for ( Node child : node.getChilds()){
 			child.setCaption(root.getCaption()

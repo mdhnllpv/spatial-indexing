@@ -41,6 +41,7 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	}
 
 	public void paint(Graphics g) {
+		super.paint(g);
 		for (ISpatialObject2D component : components){
 			component.paintComponent(g);
 		}
@@ -68,7 +69,6 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 		@Override
 		public void mouseReleased(MouseEvent evt) {
-			currunt.setComplete(true);
 			currunt.setCaption("R" + components.size());
 			repaint();
 			currunt.getBound();

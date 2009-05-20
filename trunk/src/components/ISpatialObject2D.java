@@ -16,19 +16,7 @@ public interface ISpatialObject2D {
 	 * @param g - Graphics
 	 */
 	public void paintComponent(Graphics g);
-		
-	/**
-	 * 
-	 * @return - True if component is complete
-	 */
-	public boolean isComplete();
-	
-	/**
-	 * 
-	 * @param isComplete - true if component is complete
-	 */
-	public void setComplete(boolean isComplete);
-	
+			
 	/**
 	 * Set component caption
 	 * @param caption - caption
