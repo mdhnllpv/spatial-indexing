@@ -1,5 +1,12 @@
 package rtree;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import components.ISpatialObject2D;
 import components.SpatialObject2DImpl;
 
@@ -10,6 +17,7 @@ public class RTree {
 	// Max entries for a node
 	private int M;
 
+	// Min entry for a node
 	private int m;
 
 	/**
@@ -21,7 +29,8 @@ public class RTree {
 	public RTree(int m, int M) {
 		this.M = M;
 		this.m = m;
-		root = new Node(m, M);
+		root = new Node("root", null);
+		root.setChild(new ArrayList<Node>());
 	}
 
 	public void Search(final SpatialObject2DImpl object) {
@@ -41,16 +50,25 @@ public class RTree {
 
 		if (node != null) {
 
+			// If node is a leaf return it
 			if (node.isLeaf()) {
 				return node;
 			} else {
-				Node selected = node.getChildNodes().get(0);
-				for (Node child : node.getChildNodes()) {
-					if (selected.enlargment(object) > child.enlargment(object)) {
+				// Select the child with the least needed enlargement to
+				// encapsulate object bounds
+				Node selected = null;
+				for (Node child : node.getChilds()) {
+					if (selected == null) {
 						selected = child;
+						continue;
+					} else {
+						if (Node.enlargment(selected.getBound(), object
+								.getBound()) > Node.enlargment(
+								child.getBound(), object.getBound())) {
+							selected = child;
+						}
 					}
 				}
-
 				return ChooseLeaf(selected, object);
 			}
 		}
@@ -67,37 +85,119 @@ public class RTree {
 	 *            Splited node of the started node
 	 */
 	private void AdjustTree(Node node, Node splited) {
+
+		node.setBound(Node.encloseNode(node.getChilds()));
 		if (node == root) {
+			if (splited == null) {
+			} else {
+				// grow tree
+				Node newRoot = new Node("root", null);
+				node.setParent(newRoot);
+				splited.setParent(newRoot);
+				newRoot.addChild(node);
+				newRoot.addChild(splited);
+				this.root = newRoot;
+
+			}
+
 			return;
 		}
-		Node parent = node.getParent();
-
-		parent.enclose();
-
-		if (parent.getChildNodes().size() > M) {
-			//parent.SplitNode(splited);
+		// If there was a split
+		if (splited != null) {
+			// If there is room add it
+			if (node.getParent().getChilds().size() < M) {
+				node.getParent().addChild(splited);
+				AdjustTree(node.getParent(), null);
+			} else {
+				// Split the parent
+				AdjustTree(node.getParent(), splited);
+			}
 		}
-
-		parent.addChild(splited);
-
+		AdjustTree(node.getParent(), null);
 	}
 
+	/**
+	 * Insert a Spatial object into the tree
+	 * 
+	 * @param component
+	 *            spatial object
+	 */
 	public void Insert(ISpatialObject2D component) {
 		InternalInsert(root, component);
 	}
 
-	private void InternalInsert(Node root, ISpatialObject2D component) {
-//		Node leaf = ChooseLeaf(root, component);
-//		Node splited = null;
-//		if (leaf.getSpatialObjects().size() > M) {
-//			Node newNode = new Node(m, M);
-//			newNode.addSpatialObject(component);
-//			splited = leaf.SplitNode(newNode);
-//		} else {
-//			leaf.addSpatialObject(component);
-//		}
-//
-//		AdjustTree(leaf, splited);
+	/**
+	 * Recursive insert
+	 * 
+	 * @param root
+	 *            curr node
+	 * @param obj
+	 *            object
+	 */
+	private void InternalInsert(Node root, ISpatialObject2D obj) {
+		// Select a leaf in which to place object
+		Node leaf = ChooseLeaf(root, obj);
+		Node splitedNode = null;
+
+		Node newNode = new Node(null, leaf, obj);
+		// Put object into leaf if there is space
+		if (leaf.getChilds().size() < M) {
+			leaf.addChild(newNode);
+		} else {
+			Collection<Node> nodesForSplit = leaf.getChilds();
+			nodesForSplit.add(newNode);
+			List<Set<Node>> splited = Node.Split(nodesForSplit, m, M);
+			// Add splited children to leaf to leaf
+			leaf.setChild(new ArrayList<Node>(splited.get(0)));
+
+			splitedNode = new Node();
+			splitedNode.setChild(new ArrayList<Node>(splited.get(1)));
+		}
+		AdjustTree(leaf, splitedNode);
+
+	}
+
+	private void print(Node root) {
+		if (root != null) {
+			String p = null;
+			if (root.getParent() != null) {
+				p = root.getParent().getCaption();
+			}
+			System.out.println("Parent = " + p);
+			System.out.println("Caption = " + root.getCaption());
+			System.out.println("bound = " + root.getBound());
+			System.out.println("objects: = " + root.getObject());
+			System.out.println("---->");
+			for (Node child : root.getChilds()) {
+				child.setCaption(root.getCaption()
+						+ root.getChilds().indexOf(child));
+				print(child);
+			}
+
+		}
+	}
+	
+	private void draw(Node node,Graphics g){
+		g.setColor(Color.BLUE);
+		g.drawString(node.getCaption(), node.getBound().x, node.getBound().y);
+		g.drawRect(node.getBound().x, node.getBound().y, node.getBound().width, node.getBound().height);
+		for ( Node child : node.getChilds()){
+			child.setCaption(root.getCaption()
+					+ root.getChilds().indexOf(child));
+			draw(child,g);
+		}
+	}
+	
+	public void draw(Graphics g){
+		draw(root,g);
+	}
+
+	public void print() {
+		print(root);
+	}
+	
+	public boolean isEmpty(){
+		return root.getChilds().size() == 0;
 	}
 
 }

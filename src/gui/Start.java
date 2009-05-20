@@ -2,6 +2,8 @@ package gui;
 
 import java.awt.Container;
 
+import rtree.RTree;
+
 public class Start {
 
 	/**
@@ -10,7 +12,8 @@ public class Start {
 	public static void main(String[] args) {
 		MainApplication application = new MainApplication();
 		Container contentPane = application.getContentPane();
-		contentPane.add(new DrawingPanel());
+		RTree tree = new RTree(2,4);
+		contentPane.add(new DrawingPanel(tree));
 		application.setVisible(true);
 	}
 }
