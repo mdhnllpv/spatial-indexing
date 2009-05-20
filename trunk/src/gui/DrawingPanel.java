@@ -9,6 +9,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
+import rtree.RTree;
+
 import components.SpatialObject2DImpl;
 import components.ISpatialObject2D;
 
@@ -19,8 +21,12 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	private Set<ISpatialObject2D> components;
 	
 	private ISpatialObject2D currunt = null;
-
-	public DrawingPanel() {
+	
+	private RTree tree;
+	
+	public DrawingPanel( RTree tree) {
+		
+		this.tree = tree;
 		
 		components = new HashSet<ISpatialObject2D>();
 		
@@ -38,6 +44,9 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		for (ISpatialObject2D component : components){
 			component.paintComponent(g);
 		}
+		if ( !tree.isEmpty() ){
+			tree.draw(g);
+		}
 	}
 
 	@Override
@@ -46,6 +55,10 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	}
 	
 	private class MouseAdapterWrapper extends MouseAdapter{
+		
+		public MouseAdapterWrapper(){
+			super();
+		}
 		
 		@Override
 		public void mousePressed(MouseEvent evt) {
@@ -58,6 +71,8 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 			currunt.setComplete(true);
 			currunt.setCaption("R" + components.size());
 			repaint();
+			currunt.getBound();
+			tree.Insert(currunt);
 		}
 	}
 }

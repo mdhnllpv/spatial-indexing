@@ -70,7 +70,7 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 		}
 	}
 
-	private void paintBound(Graphics g) {
+	public void paintBound(Graphics g) {
 		calculateBound();
 		g.drawString(caption, rectangleBound.x, rectangleBound.y);
 		g.setColor(Color.RED);
@@ -93,6 +93,7 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 
 	@Override
 	public Rectangle getBound() {
+		calculateBound();
 		return this.rectangleBound;
 	}
 
