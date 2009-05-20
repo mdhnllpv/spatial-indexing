@@ -12,15 +12,12 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	private List<Point> points;
 
 	private Rectangle rectangleBound;
-	
-	private boolean isComplete;
-	
+		
 	private String caption = null;
 
 	public SpatialObject2DImpl() {
 		this.points = new ArrayList<Point>();
 		this.rectangleBound = new Rectangle();
-		this.isComplete = false;
 	}
 
 	private void calculateBound() {
@@ -65,24 +62,14 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 			}
 		}
 		
-		if ( isComplete ){
-			paintBound(g);
-		}
+		paintBound(g);
 	}
 
 	public void paintBound(Graphics g) {
 		calculateBound();
-		g.drawString(caption, rectangleBound.x, rectangleBound.y);
+		//g.drawString(caption, rectangleBound.x, rectangleBound.y);
 		g.setColor(Color.RED);
 		g.drawRect(rectangleBound.x,rectangleBound.y, rectangleBound.width, rectangleBound.height);
-	}
-
-	public void setComplete(boolean isComplete) {
-		this.isComplete = isComplete;
-	}
-
-	public boolean isComplete() {
-		return isComplete;
 	}
 
 	@Override
