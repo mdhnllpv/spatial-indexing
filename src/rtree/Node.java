@@ -208,12 +208,14 @@ public class Node {
 			if (group1.size() + collection.size() < m) {
 				group1.addAll(collection);
 				collection.clear();
+				break;
 			}
 			
 			// If minimum entries is reached copy all elements
 			if (group2.size() + collection.size() < m) {
 				group2.addAll(collection);
 				collection.clear();
+				break;
 			}
 
 			// Get next object
