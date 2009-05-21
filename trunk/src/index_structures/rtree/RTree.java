@@ -17,7 +17,7 @@ import components.SpatialObject2DImpl;
 
 public class RTree implements ISpatialIndex {
 
-	private Node root = null;
+	private RNode root = null;
 
 	// Max entries for a node
 	private int M;
@@ -34,9 +34,9 @@ public class RTree implements ISpatialIndex {
 	public RTree(int m, int M) {
 		this.M = M;
 		this.m = m;
-		root = new Node(null);
+		root = new RNode(null);
 		root.setLevel(0);
-		root.setChild(new ArrayList<Node>());
+		root.setChild(new ArrayList<RNode>());
 	}
 
 	public void Search(final SpatialObject2DImpl object) {
@@ -52,7 +52,7 @@ public class RTree implements ISpatialIndex {
 	 *            Spatial object
 	 * @return The found node
 	 */
-	private Node ChooseLeaf(Node node, ISpatialObject2D object) {
+	private RNode ChooseLeaf(RNode node, ISpatialObject2D object) {
 
 		if (node != null) {
 
@@ -62,14 +62,14 @@ public class RTree implements ISpatialIndex {
 			} else {
 				// Select the child with the least needed enlargement to
 				// encapsulate object bounds
-				Node selected = null;
-				for (Node child : node.getChilds()) {
+				RNode selected = null;
+				for (RNode child : node.getChilds()) {
 					if (selected == null) {
 						selected = child;
 						continue;
 					} else {
-						if (Node.enlargment(selected.getBound(), object
-								.getBound()) > Node.enlargment(
+						if (RNode.enlargment(selected.getBound(), object
+								.getBound()) > RNode.enlargment(
 								child.getBound(), object.getBound())) {
 							selected = child;
 						}
@@ -90,14 +90,14 @@ public class RTree implements ISpatialIndex {
 	 * @param splited
 	 *            Splited node of the started node
 	 */
-	private void AdjustTree(Node node, Node splited) {
+	private void AdjustTree(RNode node, RNode splited) {
 
-		node.setBound(Node.encloseNode(node.getChilds()));
+		node.setBound(RNode.encloseNode(node.getChilds()));
 		if (node == root) {
 			if (splited == null) {
 			} else {
 				// grow tree
-				Node newRoot = new Node(null);
+				RNode newRoot = new RNode(null);
 				node.setParent(newRoot);
 				splited.setParent(newRoot);
 				newRoot.addChild(node);
@@ -140,30 +140,30 @@ public class RTree implements ISpatialIndex {
 	 * @param obj
 	 *            object
 	 */
-	private void InternalInsert(Node root, ISpatialObject2D obj) {
+	private void InternalInsert(RNode root, ISpatialObject2D obj) {
 		// Select a leaf in which to place object
-		Node leaf = ChooseLeaf(root, obj);
-		Node splitedNode = null;
+		RNode leaf = ChooseLeaf(root, obj);
+		RNode splitedNode = null;
 
-		Node newNode = new Node(leaf, obj);
+		RNode newNode = new RNode(leaf, obj);
 		// Put object into leaf if there is space
 		if (leaf.getChilds().size() < M) {
 			leaf.addChild(newNode);
 		} else {
-			Collection<Node> nodesForSplit = leaf.getChilds();
+			Collection<RNode> nodesForSplit = leaf.getChilds();
 			nodesForSplit.add(newNode);
-			List<Set<Node>> splited = Node.Split(nodesForSplit, m, M);
+			List<Set<RNode>> splited = RNode.Split(nodesForSplit, m, M);
 			// Add splited children to leaf to leaf
-			leaf.setChild(new ArrayList<Node>(splited.get(0)));
+			leaf.setChild(new ArrayList<RNode>(splited.get(0)));
 
-			splitedNode = new Node();
-			splitedNode.setChild(new ArrayList<Node>(splited.get(1)));
+			splitedNode = new RNode();
+			splitedNode.setChild(new ArrayList<RNode>(splited.get(1)));
 		}
 		AdjustTree(leaf, splitedNode);
 
 	}
 
-	private void print(Node root) {
+	private void print(RNode root) {
 		if (root != null) {
 			Integer p = null;
 			if (root.getParent() != null) {
@@ -174,7 +174,7 @@ public class RTree implements ISpatialIndex {
 			System.out.println("bound = " + root.getBound());
 			System.out.println("objects: = " + root.getObject());
 			System.out.println("---->");
-			for (Node child : root.getChilds()) {
+			for (RNode child : root.getChilds()) {
 				child.setLevel(root.getLevel()
 						+ root.getChilds().indexOf(child));
 				print(child);
@@ -183,13 +183,13 @@ public class RTree implements ISpatialIndex {
 		}
 	}
 
-	private void draw(Node node, Graphics g) {
+	private void draw(RNode node, Graphics g) {
 		root.setLevel(0);
 		g.setColor(getColorBound(node.getLevel()));
 		((Graphics2D) g).setStroke(new BasicStroke(2));
 		g.drawRect(node.getBound().x, node.getBound().y, node.getBound().width,
 				node.getBound().height);
-		for (Node child : node.getChilds()) {
+		for (RNode child : node.getChilds()) {
 			child.setLevel(node.getLevel() + 1);
 			draw(child, g);
 		}
@@ -216,17 +216,17 @@ public class RTree implements ISpatialIndex {
 	 *            object
 	 * @return true if the object was deleted
 	 */
-	private boolean Delete(Node root, ISpatialObject2D object) {
+	private boolean Delete(RNode root, ISpatialObject2D object) {
 		// Find the leaf that contains the object
-		Node leaf = findLeaf(root, object);
+		RNode leaf = findLeaf(root, object);
 		// If no leaf is found return false
 		if (leaf == null) {
 			return false;
 		}
 
-		Node forDelete = null;
+		RNode forDelete = null;
 		// Find the child which contains the element
-		for (Node child : leaf.getChilds()) {
+		for (RNode child : leaf.getChilds()) {
 			if (child.getBound().contains(object.getBound())) {
 				forDelete = child;
 			}
@@ -234,7 +234,7 @@ public class RTree implements ISpatialIndex {
 		if (forDelete != null)
 			// Remove elements
 			leaf.removeChild(forDelete);
-		
+
 		// Condense tree to propagate changes
 		CondenseTree(leaf);
 
@@ -250,11 +250,11 @@ public class RTree implements ISpatialIndex {
 	 *            searched object
 	 * @return the leaf that contain the object
 	 */
-	private Node findLeaf(Node root, ISpatialObject2D object) {
+	private RNode findLeaf(RNode root, ISpatialObject2D object) {
 		// Check all entries to find the object
 		if (root.isLeaf()) {
 			// Check if matching child is found
-			for (Node child : root.getChilds()) {
+			for (RNode child : root.getChilds()) {
 				if (child.getBound().contains(object.getBound())) {
 					return root;
 				}
@@ -262,10 +262,10 @@ public class RTree implements ISpatialIndex {
 			// If no child is found return null
 			return null;
 		} else {
-			for (Node child : root.getChilds()) {
+			for (RNode child : root.getChilds()) {
 				// Descent if object is in node bounds
 				if (child.getBound().contains(object.getBound())) {
-					Node candidate = findLeaf(child, object);
+					RNode candidate = findLeaf(child, object);
 					if (candidate != null) {
 						return candidate;
 					}
@@ -284,11 +284,11 @@ public class RTree implements ISpatialIndex {
 	 * @param node
 	 *            node from which a record has been deleted
 	 */
-	private void CondenseTree(Node node) {
-		Set<Node> orphans = new HashSet<Node>();
+	private void CondenseTree(RNode node) {
+		Set<RNode> orphans = new HashSet<RNode>();
 
 		while (node != root) {
-			Node parent = node.getParent();
+			RNode parent = node.getParent();
 			if (node.getChilds().size() < m) {
 				parent.removeChild(node);
 				orphans.add(node);
@@ -301,21 +301,20 @@ public class RTree implements ISpatialIndex {
 
 		// Insert all entries from orphans
 		Set<ISpatialObject2D> objectToAdd = new HashSet<ISpatialObject2D>();
-		for ( Node child : orphans ){
+		for (RNode child : orphans) {
 			objectToAdd.addAll(extraxtSpatialObject(child));
 		}
-		
+
 		Insert(objectToAdd);
 	}
-	
-	private Set<ISpatialObject2D> extraxtSpatialObject(Node root){
+
+	private Set<ISpatialObject2D> extraxtSpatialObject(RNode root) {
 		Set<ISpatialObject2D> result = new HashSet<ISpatialObject2D>();
-		
-		for (Node child : root.getChilds()){
-			if ( child.getObject() != null ){
+
+		for (RNode child : root.getChilds()) {
+			if (child.getObject() != null) {
 				result.add(child.getObject());
-			}
-			else{
+			} else {
 				result.addAll(extraxtSpatialObject(child));
 			}
 		}
@@ -350,10 +349,36 @@ public class RTree implements ISpatialIndex {
 	 */
 	@Override
 	public void Insert(Collection<ISpatialObject2D> collection) {
-		for ( ISpatialObject2D object : collection ){
+		for (ISpatialObject2D object : collection) {
 			Insert(object);
 		}
-		
+
+	}
+
+	@Override
+	public ISpatialObject2D Search(ISpatialObject2D pattern) {
+		return InternalSearch(root, pattern);
+	}
+
+	private ISpatialObject2D InternalSearch(RNode root, ISpatialObject2D pattern) {
+		if (root.isLeaf()) {
+			for (RNode child : root.getChilds()) {
+				if (child.getBound().contains(pattern.getBound())) {
+					return child.getObject();
+				}
+			}
+		} else {
+			for (RNode child : root.getChilds()) {
+				if (child.getBound().contains(pattern.getBound())) {
+					ISpatialObject2D result = InternalSearch(child, pattern);
+					if (result != null) {
+						return result;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 }

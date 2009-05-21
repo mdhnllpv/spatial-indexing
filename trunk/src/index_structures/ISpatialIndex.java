@@ -7,21 +7,10 @@ import components.ISpatialObject2D;
 
 public interface ISpatialIndex {
 	/**
-	 * Insert a object into index structure
-	 * @param object object to insert
+	 * Delete object from the structure
+	 * @param object object to be deleted
 	 */
-	public void Insert(ISpatialObject2D object);
-	
-	/**
-	 * Insert hole collectin with elements
-	 */
-	public void Insert(Collection<ISpatialObject2D> collection);
-	
-	/**
-	 * 
-	 * @return True if the structure is empty
-	 */
-	public boolean isEmpty();
+	public boolean Delete(ISpatialObject2D object);
 	
 	/**
 	 * Draw the structure
@@ -30,8 +19,26 @@ public interface ISpatialIndex {
 	public void draw(Graphics g);
 	
 	/**
-	 * Delete object from the structure
-	 * @param object object to be deleted
+	 * Insert hole collectin with elements
 	 */
-	public boolean Delete(ISpatialObject2D object);
+	public void Insert(Collection<ISpatialObject2D> collection);
+	
+	/**
+	 * Insert a object into index structure
+	 * @param object object to insert
+	 */
+	public void Insert(ISpatialObject2D object);
+	
+	/**
+	 * Search for a given object in the structure
+	 * @param pattern searched pattern
+	 * @return the found object
+	 */
+	public ISpatialObject2D Search(ISpatialObject2D pattern);
+	
+	/**
+	 * 
+	 * @return True if the structure is empty
+	 */
+	public boolean isEmpty();
 }
