@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class MainApplication extends JFrame {
@@ -23,8 +24,14 @@ public class MainApplication extends JFrame {
 	private Toolkit toolkit;
 
 	private DrawingPanel drawingPanel;
+	
+	private JLabel xPos = new JLabel();
+	
+	private JLabel yPos = new JLabel();
 
 	public MainApplication() {
+		
+		
 		setSize(800, 600);
 		setTitle("Spatial Indexing");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -45,9 +52,10 @@ public class MainApplication extends JFrame {
 		actionPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		actionPanel.setBounds(700, 0, 100, 600);
 		actionPanel.setLayout(null);
+		
 
 		drawingPanel = new DrawingPanel(SpatialIndexFactory
-				.createSpatialIndex(SpatialIndex.RTree));
+				.createSpatialIndex(SpatialIndex.RTree),xPos,yPos);
 		drawingPanel.setSize(700, 600);
 
 		List<String> comboItems = new ArrayList<String>();
@@ -73,7 +81,6 @@ public class MainApplication extends JFrame {
 			actionItems.add(i.toString());
 		}
 		JComboBox actionBox = new JComboBox(actionItems.toArray());
-		actionBox.setBounds(0,40,90,30);
 		actionBox.addActionListener(new ActionListener(){
 
 			@Override
@@ -85,6 +92,15 @@ public class MainApplication extends JFrame {
 			}
 			
 		});
+				
+		xPos.setBounds(0,100,40,20);
+		yPos.setBounds(50,100,40,20);
+		
+		actionBox.setBounds(0,40,90,30);
+		
+		
+		actionPanel.add(xPos);
+		actionPanel.add(yPos);
 		actionPanel.add(comboBox);
 		actionPanel.add(actionBox);
 		panel.add(drawingPanel);

@@ -2,5 +2,6 @@ package gui;
 
 public enum MouseAction {
 	INSERT,
-	DELETE;
+	DELETE,
+	SEARCH;
 }

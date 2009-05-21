@@ -16,10 +16,10 @@ import components.ISpatialObject2D;
  * @author Martin Obreshkov
  * 
  */
-public class Node {
+public class RNode {
 
 	/* List with children */
-	private List<Node> childs = new ArrayList<Node>();
+	private List<RNode> childs = new ArrayList<RNode>();
 
 	/* If node is a leaf the spatial object to store */
 	private ISpatialObject2D object;
@@ -31,12 +31,12 @@ public class Node {
 	private Rectangle bound;
 
 	/* Parent node */
-	private Node parent;
+	private RNode parent;
 
 	/**
 	 * Constructor
 	 */
-	public Node() {
+	public RNode() {
 
 	}
 
@@ -46,7 +46,7 @@ public class Node {
 	 * @param caption
 	 *            Caption
 	 */
-	public Node(int level) {
+	public RNode(int level) {
 		this.level = level;
 	}
 
@@ -58,7 +58,7 @@ public class Node {
 	 * @param parent
 	 *            parent
 	 */
-	public Node(Node parent) {
+	public RNode(RNode parent) {
 		this.parent = parent;
 	}
 
@@ -72,7 +72,7 @@ public class Node {
 	 * @param object
 	 *            spatial object
 	 */
-	public Node(Node parent, ISpatialObject2D object) {
+	public RNode(RNode parent, ISpatialObject2D object) {
 		this.parent = parent;
 		this.object = object;
 		bound = object.getBound();
@@ -84,20 +84,20 @@ public class Node {
 	 * @param node
 	 *            child
 	 */
-	public void addChild(Node node) {
+	public void addChild(RNode node) {
 		this.childs.add(node);
 		node.setParent(this);
-		this.bound = Node.encloseNode(getChilds());
+		this.bound = RNode.encloseNode(getChilds());
 	}
 
 	/**
 	 * Remove child from child list bound is recalculated
 	 * @param node
 	 */
-	public void removeChild(Node node) {
+	public void removeChild(RNode node) {
 		this.childs.remove(node);
 		node.setParent(null);
-		this.bound = Node.encloseNode(getChilds());
+		this.bound = RNode.encloseNode(getChilds());
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class Node {
 	 *            maximum entries in a node
 	 * @return Select two entries to be the first objects of the group
 	 */
-	public static List<Node> PickSeed(Collection<Node> col) {
+	public static List<RNode> PickSeed(Collection<RNode> col) {
 
 		if (col.size() < 2) {
 			throw new IllegalArgumentException(
@@ -122,7 +122,7 @@ public class Node {
 		double down = 0;
 		double up = 0;
 
-		for (Node object : col) {
+		for (RNode object : col) {
 			left = Math.min(left, object.getBound().getX());
 			right = Math.max(right, object.getBound().getX());
 			up = Math.min(up, object.getBound().getY());
@@ -130,12 +130,12 @@ public class Node {
 		}
 
 		
-		Node[] result = new Node[2];
+		RNode[] result = new RNode[2];
 		double maxDimensionX = 0;
 		double maxDimensionY = 0;
 
 		// Select the two nodes with extreme values by the two dimensions
-		for (Node obj : col) {
+		for (RNode obj : col) {
 			if (maxDimensionX < obj.getBound().getWidth() / (right - left)) {
 				maxDimensionX = obj.getBound().getWidth() / (right - left);
 				result[0] = obj;
@@ -159,7 +159,7 @@ public class Node {
 	 *            bound of group2
 	 * @return object for classification
 	 */
-	public static Node PickNext(Collection<Node> collection,
+	public static RNode PickNext(Collection<RNode> collection,
 			Rectangle group1Bound, Rectangle group2Bound) {
 
 		if (collection.size() < 1) {
@@ -167,9 +167,9 @@ public class Node {
 					"can't pick next from a collection with less than 1 element");
 		}
 		double max = 0;
-		Node result = null;
+		RNode result = null;
 		
-		for (Node object : collection) {
+		for (RNode object : collection) {
 			double d1 = enlargment(group1Bound, object.getBound());
 			double d2 = enlargment(group2Bound, object.getBound());
 			if (max < Math.abs(d1 - d2)) {
@@ -187,14 +187,14 @@ public class Node {
 	 * @param M maximum entries in a node
 	 * @return List with the 2 sets
 	 */
-	public static List<Set<Node>> Split(Collection<Node> collection, int m,
+	public static List<Set<RNode>> Split(Collection<RNode> collection, int m,
 			int M) {
 
 		// get start elements
-		List<Node> startGroups = PickSeed(collection);
+		List<RNode> startGroups = PickSeed(collection);
 
-		Set<Node> group1 = new HashSet<Node>();
-		Set<Node> group2 = new HashSet<Node>();
+		Set<RNode> group1 = new HashSet<RNode>();
+		Set<RNode> group2 = new HashSet<RNode>();
 		group1.add(startGroups.get(0));
 		group2.add(startGroups.get(1));
 
@@ -218,7 +218,7 @@ public class Node {
 			}
 
 			// Get next object
-			Node next = PickNext(collection, encloseNode(group1),
+			RNode next = PickNext(collection, encloseNode(group1),
 					encloseNode(group2));
 
 			// Choose in which group to add
@@ -232,7 +232,7 @@ public class Node {
 
 		}
 
-		List<Set<Node>> result = new ArrayList<Set<Node>>();
+		List<Set<RNode>> result = new ArrayList<Set<RNode>>();
 		result.add(group1);
 		result.add(group2);
 		return result;
@@ -272,12 +272,12 @@ public class Node {
 	 *            node collection
 	 * @return rectangle bound
 	 */
-	public static Rectangle encloseNode(Collection<Node> collection) {
+	public static Rectangle encloseNode(Collection<RNode> collection) {
 		if (collection.size() == 0) {
 			return null;
 		}
 		Rectangle bound = null;
-		for (Node node : collection) {
+		for (RNode node : collection) {
 
 			if (bound == null) {
 				bound = (Rectangle) node.getBound().clone();
@@ -310,7 +310,7 @@ public class Node {
 	 * @return true if a node is a leaf
 	 */
 	public boolean isLeaf() {
-		for (Node node : childs) {
+		for (RNode node : childs) {
 			if (node.childs.size() > 0) {
 				return false;
 			}
@@ -318,13 +318,13 @@ public class Node {
 		return true;
 	}
 
-	public List<Node> getChilds() {
+	public List<RNode> getChilds() {
 		return childs;
 	}
 
-	public void setChild(List<Node> childs) {
+	public void setChild(List<RNode> childs) {
 		this.childs = childs;
-		this.bound = Node.encloseNode(getChilds());
+		this.bound = RNode.encloseNode(getChilds());
 	}
 
 	public ISpatialObject2D getObject() {
@@ -351,11 +351,11 @@ public class Node {
 		this.bound = bound;
 	}
 
-	public void setParent(Node parent) {
+	public void setParent(RNode parent) {
 		this.parent = parent;
 	}
 
-	public Node getParent() {
+	public RNode getParent() {
 		return parent;
 	}
 }

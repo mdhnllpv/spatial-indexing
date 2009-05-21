@@ -78,12 +78,6 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	}
 
 	@Override
-	public void setBound(Rectangle bound) {
-		this.rectangleBound = bound;
-		
-	}
-
-	@Override
 	public List<Point> getPoints() {
 		return points;
 	}

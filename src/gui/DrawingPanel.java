@@ -8,12 +8,11 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import components.ISpatialObject2D;
@@ -30,10 +29,16 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	private ISpatialIndex spatialIndex;
 
 	private MouseAction mouseAction = MouseAction.INSERT;
+	
+	private JLabel xPos;
+	
+	private JLabel yPos;
 
-	public DrawingPanel(ISpatialIndex tree) {
+	public DrawingPanel(ISpatialIndex tree, JLabel xPos, JLabel yPos) {
 
 		this.spatialIndex = tree;
+		this.xPos = xPos;
+		this.yPos = yPos;
 
 		components = new HashSet<ISpatialObject2D>();
 
@@ -63,6 +68,8 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
+		xPos.setText("X:" + String.valueOf(arg0.getX()));
+		yPos.setText("Y:" + String.valueOf(arg0.getY()));
 
 	}
 
@@ -77,7 +84,9 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 			if (mouseAction.equals(MouseAction.INSERT)) {
 				currunt = new SpatialObject2DImpl();
 				components.add(currunt);
+				
 			} else if (mouseAction.equals(MouseAction.DELETE)) {
+				
 				Rectangle delete = new Rectangle(evt.getX(), evt.getY(), 1, 1);
 				spatialIndex.Delete(new SpatialObject2DImpl(delete));
 				ISpatialObject2D forDelete = null;
@@ -89,12 +98,16 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 				if (forDelete != null)
 					components.remove(forDelete);
 				repaint();
+			} else if (mouseAction.equals(MouseAction.SEARCH)) {
+				Rectangle search = new Rectangle(evt.getX(), evt.getY(), 1, 1);
+				ISpatialObject2D found = spatialIndex
+						.Search(new SpatialObject2DImpl(search));
+				// TODO display info for the found object
 			}
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent evt) {
-
 		}
 
 		@Override
