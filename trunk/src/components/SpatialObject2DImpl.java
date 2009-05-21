@@ -9,15 +9,15 @@ import java.util.List;
 
 public class SpatialObject2DImpl implements ISpatialObject2D {
 
-	private List<Point> points;
+	private List<Point> points = new ArrayList<Point>();;
 
-	private Rectangle rectangleBound;
-		
-	private String caption = null;
+	private Rectangle rectangleBound = new Rectangle();
 
-	public SpatialObject2DImpl() {
-		this.points = new ArrayList<Point>();
-		this.rectangleBound = new Rectangle();
+	public SpatialObject2DImpl() { 
+	}
+	
+	public SpatialObject2DImpl(Rectangle bound){
+		this.rectangleBound = bound;
 	}
 
 	private void calculateBound() {
@@ -53,6 +53,8 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	 */
 	@Override
 	public void paintComponent(Graphics g) {
+		paintBound(g);
+		
 		g.setColor(Color.BLACK);
 		if (points.size() > 1) {
 			Point first = points.get(0);
@@ -61,21 +63,12 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 				first = second;
 			}
 		}
-		
-		paintBound(g);
 	}
 
 	public void paintBound(Graphics g) {
 		calculateBound();
-		//g.drawString(caption, rectangleBound.x, rectangleBound.y);
-		g.setColor(Color.RED);
-		g.drawRect(rectangleBound.x,rectangleBound.y, rectangleBound.width, rectangleBound.height);
-	}
-
-	@Override
-	public void setCaption(String caption) {
-		this.caption = caption;
-		
+		g.setColor(Color.YELLOW);
+		g.fillRect(rectangleBound.x,rectangleBound.y, rectangleBound.width, rectangleBound.height);
 	}
 
 	@Override
@@ -88,6 +81,11 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	public void setBound(Rectangle bound) {
 		this.rectangleBound = bound;
 		
+	}
+
+	@Override
+	public List<Point> getPoints() {
+		return points;
 	}
 	
 }

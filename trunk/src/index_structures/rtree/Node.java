@@ -25,7 +25,7 @@ public class Node {
 	private ISpatialObject2D object;
 
 	/* Node caption */
-	private String caption;
+	private int level;
 
 	/* The rectangle bound of the node */
 	private Rectangle bound;
@@ -46,8 +46,8 @@ public class Node {
 	 * @param caption
 	 *            Caption
 	 */
-	public Node(String caption) {
-		this.caption = caption;
+	public Node(int level) {
+		this.level = level;
 	}
 
 	/**
@@ -58,8 +58,7 @@ public class Node {
 	 * @param parent
 	 *            parent
 	 */
-	public Node(String caption, Node parent) {
-		this.caption = caption;
+	public Node(Node parent) {
 		this.parent = parent;
 	}
 
@@ -73,8 +72,7 @@ public class Node {
 	 * @param object
 	 *            spatial object
 	 */
-	public Node(String caption, Node parent, ISpatialObject2D object) {
-		this.caption = caption;
+	public Node(Node parent, ISpatialObject2D object) {
 		this.parent = parent;
 		this.object = object;
 		bound = object.getBound();
@@ -98,6 +96,7 @@ public class Node {
 	 */
 	public void removeChild(Node node) {
 		this.childs.remove(node);
+		node.setParent(null);
 		this.bound = Node.encloseNode(getChilds());
 	}
 
@@ -205,14 +204,14 @@ public class Node {
 		while (!collection.isEmpty()) {
 
 			// If minimum entries is reached copy all elements
-			if (group1.size() + collection.size() < m) {
+			if (group1.size() + collection.size() <= m) {
 				group1.addAll(collection);
 				collection.clear();
 				break;
 			}
 			
 			// If minimum entries is reached copy all elements
-			if (group2.size() + collection.size() < m) {
+			if (group2.size() + collection.size() <= m) {
 				group2.addAll(collection);
 				collection.clear();
 				break;
@@ -336,12 +335,12 @@ public class Node {
 		this.object = object;
 	}
 
-	public String getCaption() {
-		return caption;
+	public int getLevel() {
+		return level;
 	}
 
-	public void setCaption(String caption) {
-		this.caption = caption;
+	public void setLevel(int level) {
+		this.level = level;
 	}
 
 	public Rectangle getBound() {

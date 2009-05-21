@@ -3,6 +3,7 @@ package components;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.List;
 
 public interface ISpatialObject2D {
 	/**
@@ -12,16 +13,16 @@ public interface ISpatialObject2D {
 	public void addPoint(Point point);
 	
 	/**
+	 * 
+	 * @return List with points
+	 */
+	public List<Point> getPoints();
+	
+	/**
 	 * Paint the component
 	 * @param g - Graphics
 	 */
 	public void paintComponent(Graphics g);
-			
-	/**
-	 * Set component caption
-	 * @param caption - caption
-	 */
-	public void setCaption(String caption);
 	
 	/**
 	 * 
