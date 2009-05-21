@@ -12,7 +12,7 @@ public class Start {
 	public static void main(String[] args) {
 		MainApplication application = new MainApplication();
 		Container contentPane = application.getContentPane();
-		RTree tree = new RTree(2,4);
+		RTree tree = new RTree(3,5);
 		contentPane.add(new DrawingPanel(tree));
 		application.setVisible(true);
 	}
