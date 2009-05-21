@@ -1,5 +1,7 @@
 package gui;
 
+import index_structures.rtree.RTree;
+
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -9,10 +11,8 @@ import java.util.Set;
 
 import javax.swing.JPanel;
 
-import rtree.RTree;
-
-import components.SpatialObject2DImpl;
 import components.ISpatialObject2D;
+import components.SpatialObject2DImpl;
 
 public class DrawingPanel extends JPanel implements MouseMotionListener {
 

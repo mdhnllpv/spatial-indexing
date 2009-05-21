@@ -1,5 +1,7 @@
 package gui;
 
+import index_structures.rtree.RTree;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -18,6 +20,9 @@ public class MainApplication extends JFrame{
 		Dimension size = toolkit.getScreenSize();
 		setLocation(size.width/2 - getWidth()/2, 
 					size.height/2 - getHeight()/2);
+		
+		RTree tree = new RTree(2,5);
+		add(new DrawingPanel(tree));
 		
 	}
 
