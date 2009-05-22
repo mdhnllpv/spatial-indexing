@@ -299,10 +299,15 @@ public class RTree implements IDrawableSpatialIndex {
 		Insert(objectToAdd);
 	}
 
-	private Set<ISpatialObject2D> extraxtSpatialObject(RNode root) {
+	/**
+	 * Find all Spatial object that the node contains
+	 * @param node node
+	 * @return Set with the spatial objects
+	 */
+	private Set<ISpatialObject2D> extraxtSpatialObject(RNode node) {
 		Set<ISpatialObject2D> result = new HashSet<ISpatialObject2D>();
 
-		for (RNode child : root.getChilds()) {
+		for (RNode child : node.getChilds()) {
 			if (child.getObject() != null) {
 				result.add(child.getObject());
 			} else {
