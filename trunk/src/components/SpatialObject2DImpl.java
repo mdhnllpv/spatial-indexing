@@ -7,11 +7,13 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpatialObject2DImpl implements ISpatialObject2D {
+public class SpatialObject2DImpl implements IDrawableSpatialObject2D {
 
 	private List<Point> points = new ArrayList<Point>();;
 
 	private Rectangle rectangleBound = new Rectangle();
+	
+	private Color color = Color.YELLOW;
 
 	public SpatialObject2DImpl() { 
 	}
@@ -52,22 +54,22 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	 * @see components.IComponent#paintComponent(java.awt.Graphics)
 	 */
 	@Override
-	public void paintComponent(Graphics g) {
+	public void draw(Graphics g) {
 		paintBound(g);
 		
-		g.setColor(Color.BLACK);
-		if (points.size() > 1) {
-			Point first = points.get(0);
-			for (Point second : points.subList(1, points.size() - 1)) {
-				g.drawLine(first.x, first.y, second.x, second.y);
-				first = second;
-			}
-		}
+//		g.setColor(Color.BLACK);
+//		if (points.size() > 1) {
+//			Point first = points.get(0);
+//			for (Point second : points.subList(1, points.size() - 1)) {
+//				g.drawLine(first.x, first.y, second.x, second.y);
+//				first = second;
+//			}
+//		}
 	}
 
 	public void paintBound(Graphics g) {
 		calculateBound();
-		g.setColor(Color.YELLOW);
+		g.setColor(this.color);
 		g.fillRect(rectangleBound.x,rectangleBound.y, rectangleBound.width, rectangleBound.height);
 	}
 
@@ -80,6 +82,17 @@ public class SpatialObject2DImpl implements ISpatialObject2D {
 	@Override
 	public List<Point> getPoints() {
 		return points;
+	}
+
+	@Override
+	public void setColor(Color color) {
+		this.color = color;
+		
+	}
+
+	@Override
+	public Color getColor() {
+		return color;
 	}
 	
 }

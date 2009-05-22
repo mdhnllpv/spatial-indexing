@@ -1,46 +1,40 @@
 package gui;
 
+import index_structures.IDrawableSpatialIndex;
 import index_structures.ISpatialIndex;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import components.ISpatialObject2D;
+import components.IDrawableSpatialObject2D;
 import components.SpatialObject2DImpl;
 
 public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	private static final long serialVersionUID = -8669154925460990333L;
 
-	private Set<ISpatialObject2D> components;
+	private IDrawableSpatialObject2D currunt = null;
 
-	private ISpatialObject2D currunt = null;
-
-	private ISpatialIndex spatialIndex;
+	private IDrawableSpatialIndex spatialIndex;
 
 	private MouseAction mouseAction = MouseAction.INSERT;
-	
+
 	private JLabel xPos;
-	
+
 	private JLabel yPos;
 
-	public DrawingPanel(ISpatialIndex tree, JLabel xPos, JLabel yPos) {
+	public DrawingPanel(IDrawableSpatialIndex tree, JLabel xPos, JLabel yPos) {
 
 		this.spatialIndex = tree;
 		this.xPos = xPos;
 		this.yPos = yPos;
-
-		components = new HashSet<ISpatialObject2D>();
 
 		addMouseListener(new MouseAdapterWrapper());
 		addMouseMotionListener(this);
@@ -50,20 +44,18 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 	}
 
 	public void mouseDragged(MouseEvent me) {
-		if (mouseAction.equals(MouseAction.INSERT)) {
 			currunt.addPoint(me.getPoint());
 			repaint();
-		}
 	}
 
 	public void paint(Graphics g) {
 		super.paint(g);
-		for (ISpatialObject2D component : components) {
-			component.paintComponent(g);
-		}
 		if (!spatialIndex.isEmpty()) {
 			spatialIndex.draw(g);
 		}
+
+		if (currunt != null)
+			currunt.draw(g);
 	}
 
 	@Override
@@ -81,29 +73,9 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 		@Override
 		public void mousePressed(MouseEvent evt) {
-			if (mouseAction.equals(MouseAction.INSERT)) {
-				currunt = new SpatialObject2DImpl();
-				components.add(currunt);
-				
-			} else if (mouseAction.equals(MouseAction.DELETE)) {
-				
-				Rectangle delete = new Rectangle(evt.getX(), evt.getY(), 1, 1);
-				spatialIndex.Delete(new SpatialObject2DImpl(delete));
-				ISpatialObject2D forDelete = null;
-				for (ISpatialObject2D component : components) {
-					if (component.getBound().contains(delete)) {
-						forDelete = component;
-					}
-				}
-				if (forDelete != null)
-					components.remove(forDelete);
-				repaint();
-			} else if (mouseAction.equals(MouseAction.SEARCH)) {
-				Rectangle search = new Rectangle(evt.getX(), evt.getY(), 1, 1);
-				ISpatialObject2D found = spatialIndex
-						.Search(new SpatialObject2DImpl(search));
-				// TODO display info for the found object
-			}
+			currunt = new SpatialObject2DImpl();
+			currunt.setColor(Color.LIGHT_GRAY);
+			currunt.addPoint(evt.getPoint());
 		}
 
 		@Override
@@ -112,14 +84,25 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 		@Override
 		public void mouseReleased(MouseEvent evt) {
-			if (mouseAction.equals(MouseAction.INSERT)) {
-				if (currunt.getPoints().size() > 0) {
-					repaint();
-					currunt.getBound();
-					spatialIndex.Insert(currunt);
-					currunt = null;
+			
+			currunt.getBound();
+			
+			if ( mouseAction.equals(MouseAction.INSERT)){
+				currunt.setColor(Color.YELLOW);
+				spatialIndex.Insert(currunt);
+				
+			} else if (mouseAction.equals(MouseAction.DELETE)){
+				spatialIndex.Delete(currunt);
+				
+			} else if (mouseAction.equals(MouseAction.SEARCH)){
+				IDrawableSpatialObject2D found = (IDrawableSpatialObject2D) spatialIndex
+						.Search(currunt);
+				if ( found != null){
+					found.setColor(Color.RED);
 				}
 			}
+			repaint();
+			currunt = null;
 		}
 	}
 
@@ -127,7 +110,7 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 		return spatialIndex;
 	}
 
-	public void setSpatialIndex(ISpatialIndex spatialIndex) {
+	public void setSpatialIndex(IDrawableSpatialIndex spatialIndex) {
 		this.spatialIndex = spatialIndex;
 	}
 

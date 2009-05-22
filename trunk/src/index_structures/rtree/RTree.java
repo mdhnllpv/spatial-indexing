@@ -1,6 +1,6 @@
 package index_structures.rtree;
 
-import index_structures.ISpatialIndex;
+import index_structures.IDrawableSpatialIndex;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -12,10 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import components.IDrawableSpatialObject2D;
 import components.ISpatialObject2D;
 import components.SpatialObject2DImpl;
 
-public class RTree implements ISpatialIndex {
+public class RTree implements IDrawableSpatialIndex {
 
 	private RNode root = null;
 
@@ -69,8 +70,8 @@ public class RTree implements ISpatialIndex {
 						continue;
 					} else {
 						if (RNode.enlargment(selected.getBound(), object
-								.getBound()) > RNode.enlargment(
-								child.getBound(), object.getBound())) {
+								.getBound()) > RNode.enlargment(child
+								.getBound(), object.getBound())) {
 							selected = child;
 						}
 					}
@@ -162,45 +163,29 @@ public class RTree implements ISpatialIndex {
 		AdjustTree(leaf, splitedNode);
 
 	}
-
-	private void print(RNode root) {
-		if (root != null) {
-			Integer p = null;
-			if (root.getParent() != null) {
-				p = root.getParent().getLevel();
-			}
-			System.out.println("Parent = " + p);
-			System.out.println("Caption = " + root.getLevel());
-			System.out.println("bound = " + root.getBound());
-			System.out.println("objects: = " + root.getObject());
-			System.out.println("---->");
-			for (RNode child : root.getChilds()) {
-				child.setLevel(root.getLevel()
-						+ root.getChilds().indexOf(child));
-				print(child);
-			}
-
-		}
-	}
-
+	
 	private void draw(RNode node, Graphics g) {
 		root.setLevel(0);
+
 		g.setColor(getColorBound(node.getLevel()));
+
 		((Graphics2D) g).setStroke(new BasicStroke(2));
+
 		g.drawRect(node.getBound().x, node.getBound().y, node.getBound().width,
 				node.getBound().height);
+
 		for (RNode child : node.getChilds()) {
 			child.setLevel(node.getLevel() + 1);
 			draw(child, g);
+		}
+
+		if (node.getObject() != null) {
+			((IDrawableSpatialObject2D)node.getObject()).draw(g);
 		}
 	}
 
 	public void draw(Graphics g) {
 		draw(root, g);
-	}
-
-	public void print() {
-		print(root);
 	}
 
 	public boolean isEmpty() {
@@ -234,6 +219,12 @@ public class RTree implements ISpatialIndex {
 		if (forDelete != null)
 			// Remove elements
 			leaf.removeChild(forDelete);
+		
+		if ( this.root.getChilds().size() == 1){
+			if (! this.root.getChilds().get(0).getChilds().isEmpty() ){
+				this.root = this.root.getChilds().get(0);
+			}
+		}
 
 		// Condense tree to propagate changes
 		CondenseTree(leaf);

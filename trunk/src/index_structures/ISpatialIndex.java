@@ -1,6 +1,5 @@
 package index_structures;
 
-import java.awt.Graphics;
 import java.util.Collection;
 
 import components.ISpatialObject2D;
@@ -11,12 +10,6 @@ public interface ISpatialIndex {
 	 * @param object object to be deleted
 	 */
 	public boolean Delete(ISpatialObject2D object);
-	
-	/**
-	 * Draw the structure
-	 * @param g Graphics
-	 */
-	public void draw(Graphics g);
 	
 	/**
 	 * Insert hole collectin with elements
