@@ -8,12 +8,13 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import components.IDrawableSpatialObject2D;
+import components.ISpatialObject2D;
 import components.SpatialObject2DImpl;
 
 public class DrawingPanel extends JPanel implements MouseMotionListener {
@@ -26,26 +27,22 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	private MouseAction mouseAction = MouseAction.INSERT;
 
-	private JLabel xPos;
+	private ActionPanel actionPanel;
 
-	private JLabel yPos;
-
-	public DrawingPanel(IDrawableSpatialIndex tree, JLabel xPos, JLabel yPos) {
+	public DrawingPanel(IDrawableSpatialIndex tree, ActionPanel actionPanel) {
 
 		this.spatialIndex = tree;
-		this.xPos = xPos;
-		this.yPos = yPos;
+		this.actionPanel = actionPanel;
 
 		addMouseListener(new MouseAdapterWrapper());
 		addMouseMotionListener(this);
 		setVisible(true);
-
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	}
 
 	public void mouseDragged(MouseEvent me) {
-			currunt.addPoint(me.getPoint());
-			repaint();
+		spatialIndex.onMouseDragged(me, currunt, mouseAction);
+		repaint();
 	}
 
 	public void paint(Graphics g) {
@@ -60,8 +57,8 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		xPos.setText("X:" + String.valueOf(arg0.getX()));
-		yPos.setText("Y:" + String.valueOf(arg0.getY()));
+		actionPanel.getXPos().setText("X:" + String.valueOf(arg0.getX()));
+		actionPanel.getYPos().setText("Y:" + String.valueOf(arg0.getY()));
 
 	}
 
@@ -84,25 +81,26 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 		@Override
 		public void mouseReleased(MouseEvent evt) {
-			
-			currunt.getBound();
-			
-			if ( mouseAction.equals(MouseAction.INSERT)){
-				currunt.setColor(Color.YELLOW);
-				spatialIndex.Insert(currunt);
-				
-			} else if (mouseAction.equals(MouseAction.DELETE)){
-				spatialIndex.Delete(currunt);
-				
-			} else if (mouseAction.equals(MouseAction.SEARCH)){
-				IDrawableSpatialObject2D found = (IDrawableSpatialObject2D) spatialIndex
-						.Search(currunt);
-				if ( found != null){
-					found.setColor(Color.RED);
+
+			if (currunt != null) {
+				currunt.getBound();
+
+				if (mouseAction.equals(MouseAction.INSERT)) {
+					currunt.setColor(Color.YELLOW);
+					spatialIndex.Insert(currunt);
+
+				} else if (mouseAction.equals(MouseAction.DELETE)) {
+					spatialIndex.Delete(currunt);
+
+				} else if (mouseAction.equals(MouseAction.SEARCH)) {
+					Collection<ISpatialObject2D> found = spatialIndex
+							.Search(currunt);
+					actionPanel.getSelected().setText(
+							"found: " + String.valueOf(found.size()));
 				}
+				repaint();
+				currunt = null;
 			}
-			repaint();
-			currunt = null;
 		}
 	}
 
@@ -112,6 +110,7 @@ public class DrawingPanel extends JPanel implements MouseMotionListener {
 
 	public void setSpatialIndex(IDrawableSpatialIndex spatialIndex) {
 		this.spatialIndex = spatialIndex;
+		repaint();
 	}
 
 	public void setMouseAction(MouseAction mouseAction) {
