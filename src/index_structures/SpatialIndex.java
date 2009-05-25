@@ -1,5 +1,6 @@
 package index_structures;
 
 public enum SpatialIndex {
-	RTree;
+	RTree,
+	QuadTree;
 }

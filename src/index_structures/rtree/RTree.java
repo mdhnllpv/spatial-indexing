@@ -1,11 +1,13 @@
 package index_structures.rtree;
 
+import gui.MouseAction;
 import index_structures.IDrawableSpatialIndex;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -130,7 +132,9 @@ public class RTree implements IDrawableSpatialIndex {
 	 *            spatial object
 	 */
 	public void Insert(ISpatialObject2D component) {
-		InternalInsert(root, component);
+		if (component.getBound().getHeight() != 0
+				&& component.getBound().getWidth() != 0)
+			InternalInsert(root, component);
 	}
 
 	/**
@@ -163,7 +167,7 @@ public class RTree implements IDrawableSpatialIndex {
 		AdjustTree(leaf, splitedNode);
 
 	}
-	
+
 	private void draw(RNode node, Graphics g) {
 		root.setLevel(0);
 
@@ -180,7 +184,7 @@ public class RTree implements IDrawableSpatialIndex {
 		}
 
 		if (node.getObject() != null) {
-			((IDrawableSpatialObject2D)node.getObject()).draw(g);
+			((IDrawableSpatialObject2D) node.getObject()).draw(g);
 		}
 	}
 
@@ -219,9 +223,9 @@ public class RTree implements IDrawableSpatialIndex {
 		if (forDelete != null)
 			// Remove elements
 			leaf.removeChild(forDelete);
-		
-		if ( this.root.getChilds().size() == 1){
-			if (! this.root.getChilds().get(0).getChilds().isEmpty() ){
+
+		if (this.root.getChilds().size() == 1) {
+			if (!this.root.getChilds().get(0).getChilds().isEmpty()) {
 				this.root = this.root.getChilds().get(0);
 			}
 		}
@@ -301,7 +305,9 @@ public class RTree implements IDrawableSpatialIndex {
 
 	/**
 	 * Find all Spatial object that the node contains
-	 * @param node node
+	 * 
+	 * @param node
+	 *            node
 	 * @return Set with the spatial objects
 	 */
 	private Set<ISpatialObject2D> extraxtSpatialObject(RNode node) {
@@ -340,11 +346,7 @@ public class RTree implements IDrawableSpatialIndex {
 		return Color.MAGENTA;
 	}
 
-	/**
-	 * 
-	 */
-	@Override
-	public void Insert(Collection<ISpatialObject2D> collection) {
+	private void Insert(Collection<ISpatialObject2D> collection) {
 		for (ISpatialObject2D object : collection) {
 			Insert(object);
 		}
@@ -352,29 +354,36 @@ public class RTree implements IDrawableSpatialIndex {
 	}
 
 	@Override
-	public ISpatialObject2D Search(ISpatialObject2D pattern) {
+	public Collection<ISpatialObject2D> Search(ISpatialObject2D pattern) {
 		return InternalSearch(root, pattern);
 	}
 
-	private ISpatialObject2D InternalSearch(RNode root, ISpatialObject2D pattern) {
+	private Collection<ISpatialObject2D> InternalSearch(RNode root,
+			ISpatialObject2D pattern) {
+		Set<ISpatialObject2D> result = new HashSet<ISpatialObject2D>();
 		if (root.isLeaf()) {
 			for (RNode child : root.getChilds()) {
 				if (child.getBound().contains(pattern.getBound())) {
-					return child.getObject();
+					result.add(child.getObject());
 				}
 			}
 		} else {
 			for (RNode child : root.getChilds()) {
 				if (child.getBound().contains(pattern.getBound())) {
-					ISpatialObject2D result = InternalSearch(child, pattern);
-					if (result != null) {
-						return result;
-					}
+					result.addAll(InternalSearch(child, pattern));
 				}
 			}
 		}
 
-		return null;
+		return result;
+	}
+
+	@Override
+	public void onMouseDragged(MouseEvent evn, ISpatialObject2D object,
+			MouseAction action) {
+		object.addPoint(evn.getPoint());
+		return;
+
 	}
 
 }

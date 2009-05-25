@@ -12,11 +12,6 @@ public interface ISpatialIndex {
 	public boolean Delete(ISpatialObject2D object);
 	
 	/**
-	 * Insert hole collectin with elements
-	 */
-	public void Insert(Collection<ISpatialObject2D> collection);
-	
-	/**
 	 * Insert a object into index structure
 	 * @param object object to insert
 	 */
@@ -27,7 +22,7 @@ public interface ISpatialIndex {
 	 * @param pattern searched pattern
 	 * @return the found object
 	 */
-	public ISpatialObject2D Search(ISpatialObject2D pattern);
+	public Collection<ISpatialObject2D> Search(ISpatialObject2D pattern);
 	
 	/**
 	 * 

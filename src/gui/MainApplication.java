@@ -3,18 +3,10 @@ package gui;
 import index_structures.SpatialIndex;
 import index_structures.SpatialIndexFactory;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class MainApplication extends JFrame {
@@ -25,14 +17,12 @@ public class MainApplication extends JFrame {
 
 	private DrawingPanel drawingPanel;
 	
-	private JLabel xPos = new JLabel();
-	
-	private JLabel yPos = new JLabel();
+	private ActionPanel actionPanel = new ActionPanel();;
 
 	public MainApplication() {
 		
 		
-		setSize(800, 600);
+		setSize(840, 640);
 		setTitle("Spatial Indexing");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -46,63 +36,18 @@ public class MainApplication extends JFrame {
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
+		drawingPanel = new DrawingPanel(SpatialIndexFactory
+				.createSpatialIndex(SpatialIndex.RTree),actionPanel);
+		
 		// Create action panel
-		JPanel actionPanel = new JPanel();
+		
+		actionPanel.setDrawingPanel(drawingPanel);
 		panel.add(actionPanel);
-		actionPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		actionPanel.setBounds(700, 0, 100, 600);
-		actionPanel.setLayout(null);
 		
 
-		drawingPanel = new DrawingPanel(SpatialIndexFactory
-				.createSpatialIndex(SpatialIndex.RTree),xPos,yPos);
+		
 		drawingPanel.setSize(700, 600);
 
-		List<String> comboItems = new ArrayList<String>();
-
-		for (SpatialIndex i : SpatialIndex.values()) {
-			comboItems.add(i.toString());
-		}
-		
-		// Create combo box for the spatial structures
-		JComboBox comboBox = new JComboBox(comboItems.toArray());
-		comboBox.setBounds(0, 0, 90, 30);
-		comboBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-			}
-
-		});
-		List<String> actionItems = new ArrayList<String>();
-
-		for (MouseAction i : MouseAction.values()) {
-			actionItems.add(i.toString());
-		}
-		JComboBox actionBox = new JComboBox(actionItems.toArray());
-		actionBox.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JComboBox cb = (JComboBox)e.getSource();
-				String action = (String) cb.getSelectedItem();
-				drawingPanel.setMouseAction(MouseAction.valueOf(action));
-				
-			}
-			
-		});
-				
-		xPos.setBounds(0,100,40,20);
-		yPos.setBounds(50,100,40,20);
-		
-		actionBox.setBounds(0,40,90,30);
-		
-		
-		actionPanel.add(xPos);
-		actionPanel.add(yPos);
-		actionPanel.add(comboBox);
-		actionPanel.add(actionBox);
 		panel.add(drawingPanel);
 
 	}
