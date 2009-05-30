@@ -23,7 +23,7 @@ public class TokenizerImpl {
 	 */
 	private Map<String, Integer> documentFrequency;
 
-	private List<Map<String, Double>> documentUnits;
+	private List<DocumentUnit> documentUnits;
 
 	public TokenizerImpl() {
 
@@ -40,6 +40,7 @@ public class TokenizerImpl {
 		wordSeparator.add('!');
 		wordSeparator.add('(');
 		wordSeparator.add(')');
+		wordSeparator.add('"');
 
 		documentUnitSeparator = new ArrayList<Character>();
 		documentUnitSeparator.add('\t');
@@ -48,22 +49,22 @@ public class TokenizerImpl {
 
 		documentFrequency = new HashMap<String, Integer>();
 
-		documentUnits = new ArrayList<Map<String, Double>>();
+		documentUnits = new ArrayList<DocumentUnit>();
 	}
 
 	/**
 	 * Assign to each term in document unit weight from tf -idf scheme
 	 */
 	public void assignTfIdf() {
-		Iterator<Map<String, Double>> iterator = documentUnits.iterator();
+		Iterator<DocumentUnit> iterator = documentUnits.iterator();
 		double documentNum = documentUnits.size();
 		while (iterator.hasNext()) {
-			Map<String, Double> unit = iterator.next();
+			DocumentUnit unit = iterator.next();
 			int documentIndex = documentUnits.indexOf(unit);
-			for (String key : unit.keySet()) {
+			for (String key : unit.getTerms().keySet()) {
 				int tf = termFrequency.get(key).get(documentIndex);
 				double idf = Math.log(documentNum / documentFrequency.get(key));
-				unit.put(key, tf * idf);
+				unit.getTerms().put(key, tf * idf);
 			}
 		}
 	}
@@ -72,9 +73,13 @@ public class TokenizerImpl {
 		Map<String, Double> result = new HashMap<String, Double>();
 		double documentNum = documentUnits.size();
 		for (String key : query) {
-			int tf = 1;
-			double idf = Math.log(documentNum / documentFrequency.get(key));
-			result.put(key, tf * idf);
+			double frequency = 0;
+			if ( documentFrequency.containsKey(key.toLowerCase())){
+				int tf = 1;
+				double idf = Math.log(documentNum / documentFrequency.get(key.toLowerCase()));
+				frequency = tf * idf;
+			}
+			result.put(key, frequency);
 		}
 
 		return result;
@@ -83,17 +88,19 @@ public class TokenizerImpl {
 	public void tokenize(String input) {
 
 		int documentUnitIndex = 0;
-		HashMap<String, Double> documentUnit = new HashMap<String, Double>();
+		DocumentUnit documentUnit = new DocumentUnit(new HashMap<String, Double>(),0,0);
 		int startOfWord = 0;
 		for (int i = 0; i < input.length() - 2; i++) {
 
 			char ch = input.charAt(i);
 
 			if (ch == '\n' && input.charAt(i + 2) == '\n') {
-				if (!documentUnit.isEmpty()) {
+				if (!documentUnit.getTerms().isEmpty()) {
+					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
-					documentUnit = new HashMap<String, Double>();
+					documentUnit = new DocumentUnit(new HashMap<String, Double>(),i+2,0);
 					documentUnitIndex++;
+					
 				}
 			}
 
@@ -103,7 +110,7 @@ public class TokenizerImpl {
 					String word = input.substring(startOfWord, i).toLowerCase();
 
 					// adjust document frequency
-					if (!documentUnit.keySet().contains(word)) {
+					if (!documentUnit.getTerms().keySet().contains(word)) {
 						if (!documentFrequency.containsKey(word)) {
 							documentFrequency.put(word, 1);
 						} else {
@@ -111,7 +118,7 @@ public class TokenizerImpl {
 									.get(word) + 1);
 						}
 
-						documentUnit.put(word, 0.0);
+						documentUnit.getTerms().put(word, 0.0);
 					}
 
 					// adjust term frequency
@@ -136,14 +143,14 @@ public class TokenizerImpl {
 			}
 
 		}
-		if (!documentUnit.isEmpty()) {
+		if (!documentUnit.getTerms().isEmpty()) {
+			documentUnit.setEnd(input.length() - 1);
 			documentUnits.add(documentUnit);
-			documentUnit = new HashMap<String, Double>();
 		}
 
 	}
 
-	public List<Map<String, Double>> getDocumentUnits() {
+	public List<DocumentUnit> getDocumentUnits() {
 		return documentUnits;
 	}
 
