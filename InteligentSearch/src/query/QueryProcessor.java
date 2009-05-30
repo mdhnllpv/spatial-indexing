@@ -1,4 +1,6 @@
-package tokenizer;
+package query;
+
+import tokenizer.TokenizerImpl;
 
 public class QueryProcessor {
 	private TokenizerImpl toknizer;
