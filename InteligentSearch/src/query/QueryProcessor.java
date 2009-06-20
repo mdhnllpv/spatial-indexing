@@ -1,5 +1,7 @@
 package query;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,25 +10,27 @@ import tokenizer.DocumentUnit;
 import tokenizer.TokenizerImpl;
 
 public class QueryProcessor {
-	private TokenizerImpl toknizer;
+	private TokenizerImpl tokanizator;
 
 	public QueryProcessor(TokenizerImpl tokenizer) {
-		this.toknizer = tokenizer;
+		this.tokanizator = tokenizer;
 	}
 
-	public DocumentUnit answer(Set<String> query) {
-		double minScore = 0;
-		DocumentUnit paragraph = null;
-		
-		Map<String, Double> queryVector = this.toknizer.assignTfIdf(query);
-		for (DocumentUnit unit : this.toknizer.getDocumentUnits()) {
-			double score = DocumentScorrer.cosine(queryVector, unit.getTerms());
-			if (score > minScore) {
-				minScore = score;
-				paragraph = unit;
-			}
+	public void answer(Set<String> query) {
+		final Map<String, Double> queryVector = this.tokanizator
+				.assignTfIdf(query);
+		Collections.sort(this.tokanizator.getDocumentUnits(),
+				new Comparator<DocumentUnit>() {
 
-		}
-		return paragraph;
+					@Override
+					public int compare(DocumentUnit o1, DocumentUnit o2) {
+						if (DocumentScorrer.cosine(queryVector, o1.getTerms()) < DocumentScorrer
+								.cosine(queryVector, o2.getTerms())) {
+							return 1;
+						}
+						return -1;
+					}
+
+				});
 	}
 }
