@@ -6,6 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.Set;
 
@@ -25,7 +27,7 @@ import query.QueryProcessor;
 import tokenizer.DocumentUnit;
 import tokenizer.TokenizerImpl;
 
-public class InteligentSearchApp extends JPanel implements ActionListener {
+public class InteligentSearchApp extends JPanel {
 
 	/**
 	 * 
@@ -57,7 +59,8 @@ public class InteligentSearchApp extends JPanel implements ActionListener {
 
 		fileContentTextArea = new JTextArea(20, 100);
 
-		query = new JTextField("Enter text ...");
+		query = new JTextField("Enter search text ...");
+		query.addFocusListener(new FocusListenerImpl());
 
 		// create file chooser
 		fileChooser = new JFileChooser();
@@ -67,9 +70,57 @@ public class InteligentSearchApp extends JPanel implements ActionListener {
 		searchButton = new JButton("Search");
 		nextButton = new JButton("Next");
 
-		openButton.addActionListener(this);
-		searchButton.addActionListener(this);
-		nextButton.addActionListener(this);
+		openButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int retVal = fileChooser
+							.showOpenDialog(InteligentSearchApp.this);
+
+					if (retVal == JFileChooser.APPROVE_OPTION) {
+						File file = fileChooser.getSelectedFile();
+						inputString = FileProcessor.process(file
+								.getAbsolutePath());
+						fileContentTextArea.setText(inputString);
+						tokenizer.tokenize(inputString);
+						tokenizer.assignTfIdf();
+						queryProcessor = new QueryProcessor(tokenizer);
+
+					}
+				} catch (IllegalArgumentException e1) {
+					System.out.println(e1.getMessage());
+				}
+			}
+
+		});
+		searchButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// if documents is open make search query
+				if (tokenizer.getDocumentUnits().size() > 0) {
+					Set<String> queryBag = TokenizerImpl.stokanize(query
+							.getText());
+					queryProcessor.answer(queryBag);
+					DocumentUnit documentUnit = tokenizer.getDocumentUnits()
+							.get(0);
+					highlightDocumentUnit(documentUnit);
+					searchedIndex = 0;
+				}
+			}
+		});
+		nextButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (searchedIndex < tokenizer.getDocumentUnits().size()) {
+					DocumentUnit documentUnit = tokenizer.getDocumentUnits()
+							.get(++searchedIndex);
+					highlightDocumentUnit(documentUnit);
+				}
+			}
+		});
 
 		// action panel
 		JPanel upperPanel = new JPanel();
@@ -106,46 +157,38 @@ public class InteligentSearchApp extends JPanel implements ActionListener {
 		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == openButton) {
-			try {
-				int retVal = fileChooser
-						.showOpenDialog(InteligentSearchApp.this);
-
-				if (retVal == JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
-					inputString = FileProcessor.process(file.getAbsolutePath());
-					fileContentTextArea.setText(inputString);
-					tokenizer.tokenize(inputString);
-					tokenizer.assignTfIdf();
-					queryProcessor = new QueryProcessor(tokenizer);
-
-				}
-			} catch (IllegalArgumentException e1) {
-				System.out.println(e1.getMessage());
-			}
-		} else if (e.getSource() == searchButton) {
-			Set<String> queryBag = TokenizerImpl.stokanize(query.getText());
-			queryProcessor.answer(queryBag);
-			DocumentUnit documentUnit = tokenizer.getDocumentUnits().get(0);
-			highlightDocumentUnit(documentUnit);
-			searchedIndex = 0;
-		} else if (e.getSource() == nextButton) {
-			if (searchedIndex < tokenizer.getDocumentUnits().size()) {
-				DocumentUnit documentUnit = tokenizer.getDocumentUnits().get(
-						++searchedIndex);
-				highlightDocumentUnit(documentUnit);
-			}
-		}
-	}
-
 	public static void createAndShowGui() {
 		JFrame frame = new JFrame("Inteligent Search");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(new InteligentSearchApp());
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	/**
+	 * When the focus is gained for the first time clear the text area
+	 * 
+	 * @author mojorisin
+	 * 
+	 */
+	private class FocusListenerImpl implements FocusListener {
+
+		private boolean isFirstTime = true;
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			if (isFirstTime) {
+				query.setText(null);
+				isFirstTime = false;
+			}
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
 }
