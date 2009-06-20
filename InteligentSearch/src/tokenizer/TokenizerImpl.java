@@ -89,7 +89,7 @@ public class TokenizerImpl {
 	}
 
 	public void tokenize(String input) {
-
+		
 		int documentUnitIndex = 0;
 		DocumentUnit documentUnit = new DocumentUnit(
 				new HashMap<String, Double>(), 0, 0);
