@@ -46,13 +46,15 @@ public class InteligentSearchApp extends JPanel {
 
 	private JTextArea fileContentTextArea;
 
-	private final TokenizerImpl tokenizer = new TokenizerImpl();
+	private TokenizerImpl tokenizer = null;
 
 	private QueryProcessor queryProcessor = null;
 
 	private String inputString;
 
 	private int searchedIndex = 0;
+	
+	private boolean isFirstTimeQuery = true;
 
 	public InteligentSearchApp() {
 		super(new BorderLayout());
@@ -75,6 +77,7 @@ public class InteligentSearchApp extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					tokenizer = new TokenizerImpl();
 					int retVal = fileChooser
 							.showOpenDialog(InteligentSearchApp.this);
 
@@ -86,6 +89,7 @@ public class InteligentSearchApp extends JPanel {
 						tokenizer.tokenize(inputString);
 						tokenizer.assignTfIdf();
 						queryProcessor = new QueryProcessor(tokenizer);
+						isFirstTimeQuery = true;
 
 					}
 				} catch (IllegalArgumentException e1) {
@@ -173,19 +177,16 @@ public class InteligentSearchApp extends JPanel {
 	 */
 	private class FocusListenerImpl implements FocusListener {
 
-		private boolean isFirstTime = true;
-
 		@Override
 		public void focusGained(FocusEvent e) {
-			if (isFirstTime) {
+			if (isFirstTimeQuery) {
 				query.setText(null);
-				isFirstTime = false;
+				isFirstTimeQuery = false;
 			}
 		}
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			// TODO Auto-generated method stub
 
 		}
 
