@@ -12,13 +12,8 @@ public class FileProcessor {
 	}
 
 	public static String process(String fileName) {
-		int dotIndex = 0;
-		for (int i = 0; i < fileName.length(); i++) {
-			if (fileName.charAt(i) == '.') {
-				dotIndex = i;
-			}
-		}
-		String extension = fileName.substring(dotIndex).toLowerCase();
+		
+		String extension = getExtension(fileName);
 
 		if (supportedFiles.containsKey(extension)) {
 			return supportedFiles.get(extension).parseFile(fileName);
@@ -26,6 +21,17 @@ public class FileProcessor {
 			throw new IllegalArgumentException("unsuported file format");
 		}
 
+	}
+	
+	
+	private static String getExtension(String fileName) {
+		int dotIndex = 0;
+		for (int i = 0; i < fileName.length(); i++) {
+			if (fileName.charAt(i) == '.') {
+				dotIndex = i;
+			}
+		}
+		return fileName.substring(dotIndex).toLowerCase();
 	}
 
 }

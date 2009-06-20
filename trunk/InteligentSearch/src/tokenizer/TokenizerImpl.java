@@ -2,10 +2,12 @@ package tokenizer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 public class TokenizerImpl {
 
@@ -74,9 +76,10 @@ public class TokenizerImpl {
 		double documentNum = documentUnits.size();
 		for (String key : query) {
 			double frequency = 0;
-			if ( documentFrequency.containsKey(key.toLowerCase())){
+			if (documentFrequency.containsKey(key.toLowerCase())) {
 				int tf = 1;
-				double idf = Math.log(documentNum / documentFrequency.get(key.toLowerCase()));
+				double idf = Math.log(documentNum
+						/ documentFrequency.get(key.toLowerCase()));
 				frequency = tf * idf;
 			}
 			result.put(key, frequency);
@@ -88,7 +91,8 @@ public class TokenizerImpl {
 	public void tokenize(String input) {
 
 		int documentUnitIndex = 0;
-		DocumentUnit documentUnit = new DocumentUnit(new HashMap<String, Double>(),0,0);
+		DocumentUnit documentUnit = new DocumentUnit(
+				new HashMap<String, Double>(), 0, 0);
 		int startOfWord = 0;
 		for (int i = 0; i < input.length() - 2; i++) {
 
@@ -98,9 +102,10 @@ public class TokenizerImpl {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
-					documentUnit = new DocumentUnit(new HashMap<String, Double>(),i+2,0);
+					documentUnit = new DocumentUnit(
+							new HashMap<String, Double>(), i + 2, 0);
 					documentUnitIndex++;
-					
+
 				}
 			}
 
@@ -108,6 +113,9 @@ public class TokenizerImpl {
 				if (startOfWord != i) {
 
 					String word = input.substring(startOfWord, i).toLowerCase();
+					
+					if (isStopWord(word))
+						continue;
 
 					// adjust document frequency
 					if (!documentUnit.getTerms().keySet().contains(word)) {
@@ -148,6 +156,19 @@ public class TokenizerImpl {
 			documentUnits.add(documentUnit);
 		}
 
+	}
+
+	private boolean isStopWord(String word) {
+		return word.length() < 3;
+	}
+
+	public static Set<String> stokanize(String input) {
+		Set<String> res = new HashSet<String>();
+		StringTokenizer stringTokenizer = new StringTokenizer(input);
+		while (stringTokenizer.hasMoreElements()) {
+			res.add(stringTokenizer.nextToken().toLowerCase());
+		}
+		return res;
 	}
 
 	public List<DocumentUnit> getDocumentUnits() {
