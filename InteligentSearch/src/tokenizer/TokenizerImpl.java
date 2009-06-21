@@ -114,7 +114,7 @@ public class TokenizerImpl {
 
 					String word = input.substring(startOfWord, i).toLowerCase();
 					
-					if (isStopWord(word))
+					if (StopWords.isStopable(word))
 						continue;
 
 					// adjust document frequency
@@ -156,10 +156,6 @@ public class TokenizerImpl {
 			documentUnits.add(documentUnit);
 		}
 
-	}
-
-	private boolean isStopWord(String word) {
-		return word.length() < 3;
 	}
 
 	public static Set<String> stokanize(String input) {

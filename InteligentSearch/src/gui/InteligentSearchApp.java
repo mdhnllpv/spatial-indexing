@@ -4,17 +4,21 @@ import file_parser.FileProcessor;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,32 +38,49 @@ public class InteligentSearchApp extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Buttons
+	 */
 	private JButton openButton;
-
 	private JButton searchButton;
+	private JButton nextSearchResult;
+	private JButton nextRelevantParagraph;
 
-	private JButton nextButton;
-
+	/**
+	 * Search query
+	 */
 	private JTextField query;
 
+	/**
+	 * File chooser
+	 */
 	private JFileChooser fileChooser;
 
+	/**
+	 * Text area
+	 */
 	private JTextArea fileContentTextArea;
+	private JTextArea contentNavigator;
+
+	/**
+	 * Combo boxs
+	 */
+	private JComboBox fontCombo;
+	private JComboBox sizeCombo;
 
 	private TokenizerImpl tokenizer = null;
-
+	private DocumentUnit lastSearchedUnit = null;
 	private QueryProcessor queryProcessor = null;
-
-	private String inputString;
-
 	private int searchedIndex = 0;
-	
 	private boolean isFirstTimeQuery = true;
 
 	public InteligentSearchApp() {
 		super(new BorderLayout());
 
-		fileContentTextArea = new JTextArea(20, 100);
+		fileContentTextArea = new JTextArea(20, 80);
+		contentNavigator = new JTextArea(20,20);
+		fileContentTextArea.setEditable(false);
+		contentNavigator.setEditable(false);
 
 		query = new JTextField("Enter search text ...");
 		query.addFocusListener(new FocusListenerImpl());
@@ -67,11 +88,13 @@ public class InteligentSearchApp extends JPanel {
 		// create file chooser
 		fileChooser = new JFileChooser();
 
-		// create open button
+		// create buttons
 		openButton = new JButton("Open...");
 		searchButton = new JButton("Search");
-		nextButton = new JButton("Next");
-
+		nextSearchResult = new JButton("Next Search Result");
+		nextRelevantParagraph = new JButton("Relevant Paragraph");
+		
+		// add listeners to the buttons
 		openButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -83,13 +106,23 @@ public class InteligentSearchApp extends JPanel {
 
 					if (retVal == JFileChooser.APPROVE_OPTION) {
 						File file = fileChooser.getSelectedFile();
-						inputString = FileProcessor.process(file
+						String inputString = FileProcessor.process(file
 								.getAbsolutePath());
+						fileContentTextArea.setFont(new Font(
+								FontFactory.defaultFont,
+								FontFactory.defaultStyle,
+								FontFactory.defaultSize));
 						fileContentTextArea.setText(inputString);
 						tokenizer.tokenize(inputString);
 						tokenizer.assignTfIdf();
 						queryProcessor = new QueryProcessor(tokenizer);
 						isFirstTimeQuery = true;
+						
+						// fill content navigator
+						int cnt = tokenizer.getDocumentUnits().size();
+						for ( int i = 0; i < cnt; i++ ){
+							contentNavigator.append("paragraph " + String.valueOf(i) + "\n");
+						}
 
 					}
 				} catch (IllegalArgumentException e1) {
@@ -107,42 +140,78 @@ public class InteligentSearchApp extends JPanel {
 					Set<String> queryBag = TokenizerImpl.stokanize(query
 							.getText());
 					queryProcessor.answer(queryBag);
-					DocumentUnit documentUnit = tokenizer.getDocumentUnits()
-							.get(0);
-					highlightDocumentUnit(documentUnit);
+					lastSearchedUnit = tokenizer.getDocumentUnits().get(0);
+					highlightDocumentUnit(lastSearchedUnit);
 					searchedIndex = 0;
 				}
 			}
 		});
-		nextButton.addActionListener(new ActionListener() {
+		nextSearchResult.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (searchedIndex < tokenizer.getDocumentUnits().size()) {
-					DocumentUnit documentUnit = tokenizer.getDocumentUnits()
-							.get(++searchedIndex);
-					highlightDocumentUnit(documentUnit);
+					lastSearchedUnit = tokenizer.getDocumentUnits().get(
+							++searchedIndex);
+					highlightDocumentUnit(lastSearchedUnit);
 				}
 			}
 		});
 
-		// action panel
-		JPanel upperPanel = new JPanel();
-		upperPanel.add(openButton, BorderLayout.WEST);
-		upperPanel.add(searchButton, BorderLayout.AFTER_LAST_LINE);
-		upperPanel.add(query, BorderLayout.EAST);
-		upperPanel.add(nextButton, BorderLayout.EAST);
+		nextRelevantParagraph.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (lastSearchedUnit != null) {
+					lastSearchedUnit = queryProcessor
+							.singleAnswer(lastSearchedUnit.getTerms().keySet());
+					highlightDocumentUnit(lastSearchedUnit);
+				}
+			}
+
+		});
+
+		// Create combo boxes
+		fontCombo = new JComboBox(
+				new Vector<String>(FontFactory.fonts.keySet()));
+		fontCombo.addActionListener(new ComboBoxActionListener());
+		sizeCombo = new JComboBox(FontFactory.size);
+		sizeCombo.addActionListener(new ComboBoxActionListener());
+
+		// Upper panel
+		JPanel upperPanel = new JPanel(new BorderLayout());
+
+		// Action panel
+		JPanel actionPanel = new JPanel();
+		actionPanel.add(query);
+		actionPanel.add(searchButton);
+		actionPanel.add(nextSearchResult);
+		actionPanel.add(nextRelevantParagraph);
+
+		JPanel funcPanel = new JPanel();
+		funcPanel.add(openButton);
+
+		JPanel fontPanel = new JPanel();
+		fontPanel.add(new JLabel("font: "));
+		fontPanel.add(fontCombo);
+		fontPanel.add(new JLabel("size"));
+		fontPanel.add(sizeCombo);
+
+		upperPanel.add(actionPanel, BorderLayout.CENTER);
+		upperPanel.add(fontPanel, BorderLayout.EAST);
+		upperPanel.add(funcPanel, BorderLayout.WEST);
 		add(upperPanel, BorderLayout.NORTH);
 
 		// panel with file content
-		JPanel contentPanel = new JPanel();
+		JPanel contentPanel = new JPanel(new BorderLayout());
 
 		// add file content text area
 		contentPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		contentPanel.add(new JScrollPane(fileContentTextArea));
+		contentPanel.add(new JScrollPane(fileContentTextArea),BorderLayout.WEST);
+		contentPanel.add(new JScrollPane(contentNavigator), BorderLayout.EAST);
 
-		add(contentPanel);
+		add(contentPanel, BorderLayout.SOUTH);
 
 	}
 
@@ -153,7 +222,9 @@ public class InteligentSearchApp extends JPanel {
 			try {
 				highlighter.addHighlight(documentUnit.getSrart(), documentUnit
 						.getEnd(), DefaultHighlighter.DefaultPainter);
-				fileContentTextArea.setCaretPosition(documentUnit.getEnd());
+				fileContentTextArea
+						.setCaretPosition((documentUnit.getSrart() + documentUnit
+								.getEnd()) / 2);
 			} catch (BadLocationException e1) {
 				e1.printStackTrace();
 			}
@@ -187,6 +258,21 @@ public class InteligentSearchApp extends JPanel {
 
 		@Override
 		public void focusLost(FocusEvent e) {
+
+		}
+
+	}
+
+	private class ComboBoxActionListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (!fileContentTextArea.getText().isEmpty()) {
+				String f = FontFactory.fonts.get(fontCombo.getSelectedItem()
+						.toString());
+				fileContentTextArea.setFont(new Font(f, Font.PLAIN,
+						(Integer) sizeCombo.getSelectedItem()));
+			}
 
 		}
 
