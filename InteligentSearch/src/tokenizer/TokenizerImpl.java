@@ -11,9 +11,9 @@ import java.util.StringTokenizer;
 
 public class TokenizerImpl {
 
-	private List<Character> documentUnitSeparator;
+	private Set<Character> documentUnitSeparator;
 
-	private List<Character> wordSeparator;
+	private Set<Character> wordSeparator;
 
 	/**
 	 * Term id --> <document unit identifier, document unit frequency>
@@ -29,7 +29,7 @@ public class TokenizerImpl {
 
 	public TokenizerImpl() {
 
-		wordSeparator = new ArrayList<Character>();
+		wordSeparator = new HashSet<Character>();
 		wordSeparator.add('\n');
 		wordSeparator.add(' ');
 		wordSeparator.add('\t');
@@ -57,8 +57,10 @@ public class TokenizerImpl {
 		wordSeparator.add('~');
 		wordSeparator.add('`');
 
-		documentUnitSeparator = new ArrayList<Character>();
+		documentUnitSeparator = new HashSet<Character>();
 		documentUnitSeparator.add('\t');
+		documentUnitSeparator.add('\n');
+		documentUnitSeparator.add('\r');
 
 		termFrequency = new HashMap<String, Map<Integer, Integer>>();
 
@@ -112,7 +114,7 @@ public class TokenizerImpl {
 			char ch = input.charAt(i);
 
 			// Check is it is end of paragraph
-			if (ch == '\r' || input.charAt(i) == '\n') {
+			if (documentUnitSeparator.contains(ch)) {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
