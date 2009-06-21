@@ -19,10 +19,13 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -60,7 +63,7 @@ public class InteligentSearchApp extends JPanel {
 	 * Text area
 	 */
 	private JTextArea fileContentTextArea;
-	private JTextArea contentNavigator;
+	private JList navigationList;
 
 	/**
 	 * Combo boxs
@@ -78,9 +81,21 @@ public class InteligentSearchApp extends JPanel {
 		super(new BorderLayout());
 
 		fileContentTextArea = new JTextArea(20, 80);
-		contentNavigator = new JTextArea(20,20);
 		fileContentTextArea.setEditable(false);
-		contentNavigator.setEditable(false);
+		fileContentTextArea.setLineWrap(true);
+		navigationList = new JList();
+		navigationList.setSize(20, 20);
+		navigationList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				NavigationItem selectedParagraph = (NavigationItem) navigationList
+						.getSelectedValue();
+				fileContentTextArea.setCaretPosition(selectedParagraph
+						.getDocumentUnit().getSrart());
+			}
+
+		});
 
 		query = new JTextField("Enter search text ...");
 		query.addFocusListener(new FocusListenerImpl());
@@ -93,7 +108,7 @@ public class InteligentSearchApp extends JPanel {
 		searchButton = new JButton("Search");
 		nextSearchResult = new JButton("Next Search Result");
 		nextRelevantParagraph = new JButton("Relevant Paragraph");
-		
+
 		// add listeners to the buttons
 		openButton.addActionListener(new ActionListener() {
 
@@ -117,13 +132,16 @@ public class InteligentSearchApp extends JPanel {
 						tokenizer.assignTfIdf();
 						queryProcessor = new QueryProcessor(tokenizer);
 						isFirstTimeQuery = true;
-						
-						// fill content navigator
-						int cnt = tokenizer.getDocumentUnits().size();
-						for ( int i = 0; i < cnt; i++ ){
-							contentNavigator.append("paragraph " + String.valueOf(i) + "\n");
-						}
 
+						// // fill content navigator
+						NavigationItem[] elems = new NavigationItem[tokenizer
+								.getDocumentUnits().size()];
+						int index = 0;
+						for (DocumentUnit unit : tokenizer.getDocumentUnits()) {
+							elems[index] = new NavigationItem(unit, index + 1);
+							index++;
+						}
+						navigationList.setListData(elems);
 					}
 				} catch (IllegalArgumentException e1) {
 					System.out.println(e1.getMessage());
@@ -208,8 +226,9 @@ public class InteligentSearchApp extends JPanel {
 		// add file content text area
 		contentPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		contentPanel.add(new JScrollPane(fileContentTextArea),BorderLayout.WEST);
-		contentPanel.add(new JScrollPane(contentNavigator), BorderLayout.EAST);
+		contentPanel.add(new JScrollPane(fileContentTextArea),
+				BorderLayout.WEST);
+		contentPanel.add(new JScrollPane(navigationList), BorderLayout.EAST);
 
 		add(contentPanel, BorderLayout.SOUTH);
 
@@ -276,6 +295,25 @@ public class InteligentSearchApp extends JPanel {
 
 		}
 
+	}
+
+	private class NavigationItem {
+		private final DocumentUnit documentUnit;
+		private String caption = null;
+
+		public NavigationItem(final DocumentUnit unit, final int index) {
+			documentUnit = unit;
+			caption = "paragraph " + index;
+		}
+
+		@Override
+		public String toString() {
+			return caption;
+		}
+
+		public DocumentUnit getDocumentUnit() {
+			return documentUnit;
+		}
 	}
 
 }
