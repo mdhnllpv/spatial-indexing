@@ -43,6 +43,19 @@ public class TokenizerImpl {
 		wordSeparator.add('(');
 		wordSeparator.add(')');
 		wordSeparator.add('"');
+		wordSeparator.add('-');
+		wordSeparator.add('*');
+		wordSeparator.add('+');
+		wordSeparator.add('/');
+		wordSeparator.add('&');
+		wordSeparator.add('^');
+		wordSeparator.add('%');
+		wordSeparator.add('$');
+		wordSeparator.add('#');
+		wordSeparator.add('@');
+		wordSeparator.add('!');
+		wordSeparator.add('~');
+		wordSeparator.add('`');
 
 		documentUnitSeparator = new ArrayList<Character>();
 		documentUnitSeparator.add('\t');
@@ -89,7 +102,7 @@ public class TokenizerImpl {
 	}
 
 	public void tokenize(String input) {
-		
+
 		int documentUnitIndex = 0;
 		DocumentUnit documentUnit = new DocumentUnit(
 				new HashMap<String, Double>(), 0, 0);
@@ -98,7 +111,8 @@ public class TokenizerImpl {
 
 			char ch = input.charAt(i);
 
-			if (ch == '\n' && input.charAt(i + 2) == '\n') {
+			// Check is it is end of paragraph
+			if (ch == '\r' || input.charAt(i) == '\n') {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
@@ -113,7 +127,7 @@ public class TokenizerImpl {
 				if (startOfWord != i) {
 
 					String word = input.substring(startOfWord, i).toLowerCase();
-					
+
 					if (StopWords.isStopable(word))
 						continue;
 
@@ -162,7 +176,9 @@ public class TokenizerImpl {
 		Set<String> res = new HashSet<String>();
 		StringTokenizer stringTokenizer = new StringTokenizer(input);
 		while (stringTokenizer.hasMoreElements()) {
-			res.add(stringTokenizer.nextToken().toLowerCase());
+			String word = stringTokenizer.nextToken().toLowerCase();
+			if (!StopWords.isStopable(word))
+				res.add(word);
 		}
 		return res;
 	}
