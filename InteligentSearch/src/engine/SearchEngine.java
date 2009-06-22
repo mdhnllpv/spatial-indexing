@@ -13,8 +13,6 @@ public class SearchEngine {
 
 	private Set<Character> documentUnitSeparator;
 
-	private Set<Character> wordSeparator;
-
 	/**
 	 * Term id --> <document unit identifier, document unit frequency>
 	 */
@@ -28,34 +26,6 @@ public class SearchEngine {
 	private List<DocumentUnit> documentUnits;
 
 	public SearchEngine() {
-
-		wordSeparator = new HashSet<Character>();
-		wordSeparator.add('\n');
-		wordSeparator.add(' ');
-		wordSeparator.add('\t');
-		wordSeparator.add('\r');
-		wordSeparator.add(',');
-		wordSeparator.add('.');
-		wordSeparator.add(':');
-		wordSeparator.add(';');
-		wordSeparator.add('?');
-		wordSeparator.add('!');
-		wordSeparator.add('(');
-		wordSeparator.add(')');
-		wordSeparator.add('"');
-		wordSeparator.add('-');
-		wordSeparator.add('*');
-		wordSeparator.add('+');
-		wordSeparator.add('/');
-		wordSeparator.add('&');
-		wordSeparator.add('^');
-		wordSeparator.add('%');
-		wordSeparator.add('$');
-		wordSeparator.add('#');
-		wordSeparator.add('@');
-		wordSeparator.add('!');
-		wordSeparator.add('~');
-		wordSeparator.add('`');
 
 		documentUnitSeparator = new HashSet<Character>();
 		documentUnitSeparator.add('\t');
@@ -114,7 +84,7 @@ public class SearchEngine {
 			char ch = input.charAt(i);
 
 			// Check is it is end of paragraph
-			if (documentUnitSeparator.contains(ch)) {
+			if (isDocumentSeparator(ch)) {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
@@ -125,7 +95,7 @@ public class SearchEngine {
 				}
 			}
 
-			if (wordSeparator.contains(ch)) {
+			if (isWordSeparator(ch)) {
 				if (startOfWord != i) {
 
 					String word = input.substring(startOfWord, i).toLowerCase();
@@ -195,6 +165,14 @@ public class SearchEngine {
 
 	public Map<String, Integer> getDocumentFrequency() {
 		return documentFrequency;
+	}
+	
+	private boolean isWordSeparator(Character ch) {
+		return !Character.isLetter(ch);
+	}
+	
+	private boolean isDocumentSeparator(Character ch) {
+		return documentUnitSeparator.contains(ch);
 	}
 
 }
