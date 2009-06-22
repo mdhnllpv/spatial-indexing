@@ -5,14 +5,15 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
+import engine.DocumentUnit;
+import engine.SearchEngine;
+
 import scoring.DocumentScorrer;
-import tokenizer.DocumentUnit;
-import tokenizer.TokenizerImpl;
 
 public class QueryProcessor {
-	private TokenizerImpl tokanizator;
+	private SearchEngine tokanizator;
 
-	public QueryProcessor(TokenizerImpl tokenizer) {
+	public QueryProcessor(SearchEngine tokenizer) {
 		this.tokanizator = tokenizer;
 	}
 
