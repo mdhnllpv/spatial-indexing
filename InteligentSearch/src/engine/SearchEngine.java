@@ -31,16 +31,12 @@ public class SearchEngine {
 	private String input;
 
 	public SearchEngine(String input) {
-
-		termFrequency = new HashMap<String, Map<Integer, Integer>>();
-
-		documentFrequency = new HashMap<String, Integer>();
-
-		documentUnits = new ArrayList<DocumentUnit>();
-		
-		documentUnitSeparator = DocumentUnitSeparatorFactory.createDocumentUnitSeparator(input);
-		
 		this.input = input;
+		termFrequency = new HashMap<String, Map<Integer, Integer>>();
+		documentFrequency = new HashMap<String, Integer>();
+		documentUnits = new ArrayList<DocumentUnit>();
+		documentUnitSeparator = DocumentUnitSeparatorFactory.createDocumentUnitSeparator(input);
+		tokenize();
 	}
 
 	/**
@@ -77,7 +73,7 @@ public class SearchEngine {
 		return result;
 	}
 
-	public void tokenize() {
+	private void tokenize() {
 
 		int documentUnitIndex = 0;
 		DocumentUnit documentUnit = new DocumentUnit(
