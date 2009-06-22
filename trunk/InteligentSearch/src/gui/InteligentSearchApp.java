@@ -128,7 +128,6 @@ public class InteligentSearchApp extends JPanel {
 								FontFactory.defaultStyle,
 								FontFactory.defaultSize));
 						fileContentTextArea.setText(inputString);
-						tokenizer.tokenize();
 						tokenizer.assignTfIdf();
 						queryProcessor = new QueryProcessor(tokenizer);
 						isFirstTimeQuery = true;
