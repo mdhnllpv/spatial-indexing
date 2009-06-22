@@ -115,7 +115,6 @@ public class InteligentSearchApp extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					tokenizer = new SearchEngine();
 					int retVal = fileChooser
 							.showOpenDialog(InteligentSearchApp.this);
 
@@ -123,12 +122,13 @@ public class InteligentSearchApp extends JPanel {
 						File file = fileChooser.getSelectedFile();
 						String inputString = FileProcessor.process(file
 								.getAbsolutePath());
+						tokenizer = new SearchEngine(inputString);
 						fileContentTextArea.setFont(new Font(
 								FontFactory.defaultFont,
 								FontFactory.defaultStyle,
 								FontFactory.defaultSize));
 						fileContentTextArea.setText(inputString);
-						tokenizer.tokenize(inputString);
+						tokenizer.tokenize();
 						tokenizer.assignTfIdf();
 						queryProcessor = new QueryProcessor(tokenizer);
 						isFirstTimeQuery = true;
