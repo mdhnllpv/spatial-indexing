@@ -1,5 +1,7 @@
 package gui;
 
+import engine.DocumentUnit;
+import engine.SearchEngine;
 import file_parser.FileProcessor;
 
 import java.awt.BorderLayout;
@@ -31,8 +33,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 
 import query.QueryProcessor;
-import tokenizer.DocumentUnit;
-import tokenizer.TokenizerImpl;
 
 public class InteligentSearchApp extends JPanel {
 
@@ -71,7 +71,7 @@ public class InteligentSearchApp extends JPanel {
 	private JComboBox fontCombo;
 	private JComboBox sizeCombo;
 
-	private TokenizerImpl tokenizer = null;
+	private SearchEngine tokenizer = null;
 	private DocumentUnit lastSearchedUnit = null;
 	private QueryProcessor queryProcessor = null;
 	private int searchedIndex = 0;
@@ -115,7 +115,7 @@ public class InteligentSearchApp extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					tokenizer = new TokenizerImpl();
+					tokenizer = new SearchEngine();
 					int retVal = fileChooser
 							.showOpenDialog(InteligentSearchApp.this);
 
@@ -155,7 +155,7 @@ public class InteligentSearchApp extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// if documents is open make search query
 				if (tokenizer.getDocumentUnits().size() > 0) {
-					Set<String> queryBag = TokenizerImpl.stokanize(query
+					Set<String> queryBag = SearchEngine.stokanize(query
 							.getText());
 					queryProcessor.answer(queryBag);
 					lastSearchedUnit = tokenizer.getDocumentUnits().get(0);
