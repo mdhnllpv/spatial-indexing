@@ -1,7 +1,7 @@
 package separator;
 
 public class DocumentUnitSeparatorFactory {
-	public static DocumentUnitSeparator createDocumentUnitSeparator(String input) {
-		return null;
+	public static IDocumentUnitSeparator createDocumentUnitSeparator(String input) {
+		return new SingleCharacterSeparator('\n');
 	}
 }

@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-public class SearchEngine {
+import separator.DocumentUnitSeparatorFactory;
+import separator.IDocumentUnitSeparator;
 
-	private Set<Character> documentUnitSeparator;
+public class SearchEngine {
 
 	/**
 	 * Term id --> <document unit identifier, document unit frequency>
@@ -24,19 +25,22 @@ public class SearchEngine {
 	private Map<String, Integer> documentFrequency;
 
 	private List<DocumentUnit> documentUnits;
+	
+	private IDocumentUnitSeparator documentUnitSeparator;
+	
+	private String input;
 
-	public SearchEngine() {
-
-		documentUnitSeparator = new HashSet<Character>();
-		documentUnitSeparator.add('\t');
-		documentUnitSeparator.add('\n');
-		documentUnitSeparator.add('\r');
+	public SearchEngine(String input) {
 
 		termFrequency = new HashMap<String, Map<Integer, Integer>>();
 
 		documentFrequency = new HashMap<String, Integer>();
 
 		documentUnits = new ArrayList<DocumentUnit>();
+		
+		documentUnitSeparator = DocumentUnitSeparatorFactory.createDocumentUnitSeparator(input);
+		
+		this.input = input;
 	}
 
 	/**
@@ -73,7 +77,7 @@ public class SearchEngine {
 		return result;
 	}
 
-	public void tokenize(String input) {
+	public void tokenize() {
 
 		int documentUnitIndex = 0;
 		DocumentUnit documentUnit = new DocumentUnit(
@@ -84,7 +88,7 @@ public class SearchEngine {
 			char ch = input.charAt(i);
 
 			// Check is it is end of paragraph
-			if (isDocumentSeparator(ch)) {
+			if (documentUnitSeparator.isSeparator(i, input)) {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
 					documentUnits.add(documentUnit);
@@ -169,10 +173,6 @@ public class SearchEngine {
 	
 	private boolean isWordSeparator(Character ch) {
 		return !Character.isLetter(ch);
-	}
-	
-	private boolean isDocumentSeparator(Character ch) {
-		return documentUnitSeparator.contains(ch);
 	}
 
 }
