@@ -153,7 +153,7 @@ public class InteligentSearchApp extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// if documents is open make search query
-				if (tokenizer.getDocumentUnits().size() > 0) {
+				if (tokenizer != null) {
 					Set<String> queryBag = SearchEngine.stokanize(query
 							.getText());
 					queryProcessor.answer(queryBag);
@@ -167,10 +167,12 @@ public class InteligentSearchApp extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (searchedIndex < tokenizer.getDocumentUnits().size()) {
-					lastSearchedUnit = tokenizer.getDocumentUnits().get(
-							++searchedIndex);
-					highlightDocumentUnit(lastSearchedUnit);
+				if (tokenizer != null) {
+					if (searchedIndex < tokenizer.getDocumentUnits().size()) {
+						lastSearchedUnit = tokenizer.getDocumentUnits().get(
+								++searchedIndex);
+						highlightDocumentUnit(lastSearchedUnit);
+					}
 				}
 			}
 		});
@@ -180,6 +182,7 @@ public class InteligentSearchApp extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (lastSearchedUnit != null) {
+					System.out.println("here");
 					lastSearchedUnit = queryProcessor
 							.singleAnswer(lastSearchedUnit.getTerms().keySet());
 					highlightDocumentUnit(lastSearchedUnit);
@@ -234,6 +237,7 @@ public class InteligentSearchApp extends JPanel {
 	}
 
 	private void highlightDocumentUnit(DocumentUnit documentUnit) {
+		System.out.println(documentUnit);
 		if (documentUnit != null) {
 			Highlighter highlighter = fileContentTextArea.getHighlighter();
 			highlighter.removeAllHighlights();
