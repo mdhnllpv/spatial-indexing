@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="lib/poi-3.2-FINAL-20081019.jar"/>
 	<classpathentry kind="lib" path="lib/poi-contrib-3.2-FINAL-20081019.jar"/>
 	<classpathentry kind="lib" path="lib/poi-scratchpad-3.2-FINAL-20081019.jar"/>
+	<classpathentry kind="lib" path="lib/PDFBox-0.7.3.jar"/>
+	<classpathentry kind="lib" path="lib/FontBox-0.1.0-dev.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
