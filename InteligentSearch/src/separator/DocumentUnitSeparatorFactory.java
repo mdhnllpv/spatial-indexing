@@ -1,6 +1,5 @@
 package separator;
 
-import java.util.Set;
 
 public class DocumentUnitSeparatorFactory {
 	public static IDocumentUnitSeparator createDocumentUnitSeparator(
