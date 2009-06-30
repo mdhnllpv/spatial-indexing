@@ -31,6 +31,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.text.LayeredHighlighter.LayerPainter;
 
 import query.QueryProcessor;
 
@@ -93,6 +96,8 @@ public class InteligentSearchApp extends JPanel {
 						.getSelectedValue();
 				fileContentTextArea.setCaretPosition(selectedParagraph
 						.getDocumentUnit().getSrart());
+				HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+				highlightDocumentUnit(selectedParagraph.getDocumentUnit(),painter);
 			}
 
 		});
@@ -236,14 +241,13 @@ public class InteligentSearchApp extends JPanel {
 
 	}
 
-	private void highlightDocumentUnit(DocumentUnit documentUnit) {
-		System.out.println(documentUnit);
+	private void highlightDocumentUnit(DocumentUnit documentUnit, HighlightPainter painter) {
 		if (documentUnit != null) {
 			Highlighter highlighter = fileContentTextArea.getHighlighter();
 			highlighter.removeAllHighlights();
 			try {
 				highlighter.addHighlight(documentUnit.getSrart(), documentUnit
-						.getEnd(), DefaultHighlighter.DefaultPainter);
+						.getEnd(), painter);
 				fileContentTextArea
 						.setCaretPosition((documentUnit.getSrart() + documentUnit
 								.getEnd()) / 2);
@@ -252,6 +256,11 @@ public class InteligentSearchApp extends JPanel {
 			}
 
 		}
+	}
+	
+	private void highlightDocumentUnit(DocumentUnit documentUnit) {
+		HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
+		highlightDocumentUnit(documentUnit,painter);
 	}
 
 	public static void createAndShowGui() {

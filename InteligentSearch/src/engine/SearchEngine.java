@@ -25,9 +25,9 @@ public class SearchEngine {
 	private Map<String, Integer> documentFrequency;
 
 	private List<DocumentUnit> documentUnits;
-	
+
 	private IDocumentUnitSeparator documentUnitSeparator;
-	
+
 	private String input;
 
 	public SearchEngine(String input) {
@@ -35,7 +35,8 @@ public class SearchEngine {
 		termFrequency = new HashMap<String, Map<Integer, Integer>>();
 		documentFrequency = new HashMap<String, Integer>();
 		documentUnits = new ArrayList<DocumentUnit>();
-		documentUnitSeparator = DocumentUnitSeparatorFactory.createDocumentUnitSeparator(input);
+		documentUnitSeparator = DocumentUnitSeparatorFactory
+				.createDocumentUnitSeparator(input);
 		tokenize();
 	}
 
@@ -83,7 +84,49 @@ public class SearchEngine {
 
 			char ch = input.charAt(i);
 
-			// Check is it is end of paragraph
+			if (isWordSeparator(ch)) {
+				if (startOfWord != i) {
+
+					String word = input.substring(startOfWord, i).toLowerCase();
+
+					if (!StopWords.isStopable(word)) {
+
+						// adjust document frequency
+						if (!documentUnit.getTerms().keySet().contains(word)) {
+							if (!documentFrequency.containsKey(word)) {
+								documentFrequency.put(word, 1);
+							} else {
+								documentFrequency.put(word, documentFrequency
+										.get(word) + 1);
+							}
+
+							documentUnit.getTerms().put(word, 0.0);
+						}
+
+						// adjust term frequency
+						if (!termFrequency.containsKey(word)) {
+							HashMap<Integer, Integer> frequency = new HashMap<Integer, Integer>();
+							frequency.put(documentUnitIndex, 1);
+							termFrequency.put(word, frequency);
+						} else {
+							if (!termFrequency.get(word).containsKey(
+									documentUnitIndex)) {
+								termFrequency.get(word).put(documentUnitIndex,
+										1);
+							} else {
+								termFrequency.get(word).put(
+										documentUnitIndex,
+										termFrequency.get(word).get(
+												documentUnitIndex) + 1);
+							}
+						}
+					}
+				}
+				startOfWord = i + 1;
+
+			}
+
+			// Check if it is end of paragraph
 			if (documentUnitSeparator.isSeparator(i, input)) {
 				if (!documentUnit.getTerms().isEmpty()) {
 					documentUnit.setEnd(i);
@@ -93,47 +136,6 @@ public class SearchEngine {
 					documentUnitIndex++;
 
 				}
-			}
-
-			if (isWordSeparator(ch)) {
-				if (startOfWord != i) {
-
-					String word = input.substring(startOfWord, i).toLowerCase();
-
-					if (StopWords.isStopable(word))
-						continue;
-
-					// adjust document frequency
-					if (!documentUnit.getTerms().keySet().contains(word)) {
-						if (!documentFrequency.containsKey(word)) {
-							documentFrequency.put(word, 1);
-						} else {
-							documentFrequency.put(word, documentFrequency
-									.get(word) + 1);
-						}
-
-						documentUnit.getTerms().put(word, 0.0);
-					}
-
-					// adjust term frequency
-					if (!termFrequency.containsKey(word)) {
-						HashMap<Integer, Integer> frequency = new HashMap<Integer, Integer>();
-						frequency.put(documentUnitIndex, 1);
-						termFrequency.put(word, frequency);
-					} else {
-						if (!termFrequency.get(word).containsKey(
-								documentUnitIndex)) {
-							termFrequency.get(word).put(documentUnitIndex, 1);
-						} else {
-							termFrequency.get(word).put(
-									documentUnitIndex,
-									termFrequency.get(word).get(
-											documentUnitIndex) + 1);
-						}
-					}
-				}
-				startOfWord = i + 1;
-
 			}
 
 		}
@@ -166,7 +168,7 @@ public class SearchEngine {
 	public Map<String, Integer> getDocumentFrequency() {
 		return documentFrequency;
 	}
-	
+
 	private boolean isWordSeparator(Character ch) {
 		return !Character.isLetter(ch);
 	}

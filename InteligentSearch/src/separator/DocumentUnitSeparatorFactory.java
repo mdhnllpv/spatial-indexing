@@ -29,8 +29,6 @@ public class DocumentUnitSeparatorFactory {
 				}
 			}
 		}
-		System.out.println(singleSeparator);
-		System.out.println(doubleSeparator);
 		if ( singleSeparator >= doubleSeparator ) {
 			return new SingleCharacterSeparator('\n');
 		} else {
