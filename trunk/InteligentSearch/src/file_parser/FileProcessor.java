@@ -9,6 +9,7 @@ public class FileProcessor {
 		supportedFiles = new HashMap<String, IFileParser>();
 		supportedFiles.put(".txt", new TXTParserImpl());
 		supportedFiles.put(".doc", new WORDParserImpl());
+		supportedFiles.put(".pdf", new PDFParserImpl());
 	}
 
 	public static String process(String fileName) {
