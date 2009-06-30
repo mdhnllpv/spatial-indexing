@@ -1,9 +1,5 @@
 package gui;
 
-import engine.DocumentUnit;
-import engine.SearchEngine;
-import file_parser.FileProcessor;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -31,11 +27,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter.HighlightPainter;
-import javax.swing.text.LayeredHighlighter.LayerPainter;
 
 import query.QueryProcessor;
+import engine.DocumentUnit;
+import engine.SearchEngine;
+import file_parser.FileProcessor;
 
 public class InteligentSearchApp extends JPanel {
 
