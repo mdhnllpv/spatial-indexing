@@ -1,0 +1,1 @@
+Spatial indexes are used by spatial databases (databases which store information related to objects in space) to optimize spatial queries. Indexes used by non-spatial databases cannot effectively handle features such as how far two points differ and whether points fall within a spatial area of interest. Common spatial index methods include:
